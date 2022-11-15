@@ -38,10 +38,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if MsgType == None or MsgType == "":
+        if MsgType is None or MsgType == "":
             raise PopbillException(-99999999, "전송유형이 입력되지 않았습니다.")
 
-        return self._httpget('/Message/ChargeInfo?Type=' + MsgType, CorpNum, UserID)
+        return self._httpget(f'/Message/ChargeInfo?Type={MsgType}', CorpNum, UserID)
 
     def getAutoDenyList(self, CorpNum, UserID=None):
         """ 080수신거부 목록 확인
@@ -65,10 +65,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if MsgType == None or MsgType == "":
+        if MsgType is None or MsgType == "":
             raise PopbillException(-99999999, "전송유형이 입력되지 않았습니다.")
 
-        result = self._httpget('/Message/UnitCost?Type=' + MsgType, CorpNum)
+        result = self._httpget(f'/Message/UnitCost?Type={MsgType}', CorpNum)
         return float(result.unitCost)
 
     def sendSMS(self, CorpNum, Sender, Receiver, ReceiverName, Contents, reserveDT, adsYN=False, UserID=None,
@@ -89,14 +89,15 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        Messages = []
-        Messages.append(MessageReceiver(
-            snd=Sender,
-            sndnm=SenderName,
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Contents)
-        )
+        Messages = [
+            MessageReceiver(
+                snd=Sender,
+                sndnm=SenderName,
+                rcv=Receiver,
+                rcvnm=ReceiverName,
+                msg=Contents,
+            )
+        ]
 
         return self.sendMessage("SMS", CorpNum, Sender, '', '', Contents, Messages, reserveDT, adsYN, UserID,
                                 RequestNum)
@@ -140,15 +141,16 @@ class MessageService(PopbillBase):
                 PopbillException
         """
 
-        Messages = []
-        Messages.append(MessageReceiver(
-            snd=Sender,
-            sndnm=SenderName,
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Contents,
-            sjt=Subject)
-        )
+        Messages = [
+            MessageReceiver(
+                snd=Sender,
+                sndnm=SenderName,
+                rcv=Receiver,
+                rcvnm=ReceiverName,
+                msg=Contents,
+                sjt=Subject,
+            )
+        ]
 
         return self.sendMessage("LMS", CorpNum, Sender, '', Subject, Contents, Messages, reserveDT, adsYN, UserID,
                                 RequestNum)
@@ -194,15 +196,16 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        Messages = []
-        Messages.append(MessageReceiver(
-            snd=Sender,
-            sndnm=SenderName,
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Contents,
-            sjt=Subject)
-        )
+        Messages = [
+            MessageReceiver(
+                snd=Sender,
+                sndnm=SenderName,
+                rcv=Receiver,
+                rcvnm=ReceiverName,
+                msg=Contents,
+                sjt=Subject,
+            )
+        ]
 
         return self.sendMMS_Multi(CorpNum, Sender, Subject, Contents, Messages, filePath, reserveDT, adsYN, UserID,
                                   RequestNum)
@@ -225,23 +228,19 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if Messages == None or len(Messages) < 1:
+        if Messages is None or len(Messages) < 1:
             raise PopbillException(-99999999, "전송할 메시지가 입력되지 않았습니다.")
 
-        req = {}
+        req = {
+            'snd': Sender,
+            'content': Contents,
+            'subject': Subject,
+            'sndDT': reserveDT,
+            'msgs': Messages,
+            'requestNum': RequestNum,
+        }
 
-        if Sender != None or Sender != '':
-            req['snd'] = Sender
-        if Contents != None or Contents != '':
-            req['content'] = Contents
-        if Subject != None or Subject != '':
-            req['subject'] = Subject
-        if reserveDT != None or reserveDT != '':
-            req['sndDT'] = reserveDT
-        if Messages != None or Messages != '':
-            req['msgs'] = Messages
-        if RequestNum != None or RequestNum != '':
-            req['requestNum'] = RequestNum
+
         if adsYN:
             req['adsYN'] = True
 
@@ -279,15 +278,16 @@ class MessageService(PopbillBase):
                 PopbillException
         """
 
-        Messages = []
-        Messages.append(MessageReceiver(
-            snd=Sender,
-            sndnm=SenderName,
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Contents,
-            sjt=Subject)
-        )
+        Messages = [
+            MessageReceiver(
+                snd=Sender,
+                sndnm=SenderName,
+                rcv=Receiver,
+                rcvnm=ReceiverName,
+                msg=Contents,
+                sjt=Subject,
+            )
+        ]
 
         return self.sendMessage("XMS", CorpNum, Sender, '', Subject, Contents, Messages, reserveDT, adsYN, UserID,
                                 RequestNum)
@@ -331,34 +331,29 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if MsgType == None or MsgType == '':
+        if MsgType is None or MsgType == '':
             raise PopbillException(-99999999, "문자 전송 유형이 입력되지 않았습니다.")
 
-        if Messages == None or len(Messages) < 1:
+        if Messages is None or len(Messages) < 1:
             raise PopbillException(-99999999, "전송할 메시지가 입력되지 않았습니다.")
 
-        req = {}
+        req = {
+            'snd': Sender,
+            'sndnm': SenderName,
+            'content': Contents,
+            'subject': Subject,
+            'sndDT': reserveDT,
+            'msgs': Messages,
+            'requestnum': RequestNum,
+        }
 
-        if Sender != None or Sender != '':
-            req['snd'] = Sender
-        if SenderName != None or SenderName != '':
-            req['sndnm'] = SenderName
-        if Contents != None or Contents != '':
-            req['content'] = Contents
-        if Subject != None or Subject != '':
-            req['subject'] = Subject
-        if reserveDT != None or reserveDT != '':
-            req['sndDT'] = reserveDT
-        if Messages != None or Messages != '':
-            req['msgs'] = Messages
-        if RequestNum != None or RequestNum != '':
-            req['requestnum'] = RequestNum
+
         if adsYN:
             req['adsYN'] = True
 
         postData = self._stringtify(req)
 
-        result = self._httppost('/' + MsgType, postData, CorpNum, UserID)
+        result = self._httppost(f'/{MsgType}', postData, CorpNum, UserID)
 
         return result.receiptNum
 
@@ -373,10 +368,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/Message/' + ReceiptNum, CorpNum, UserID)
+        return self._httpget(f'/Message/{ReceiptNum}', CorpNum, UserID)
 
     def getMessagesRN(self, CorpNum, RequestNum, UserID=None):
         """ 문자 전송결과 조회
@@ -389,10 +384,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if RequestNum == None or RequestNum == '':
+        if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다.")
 
-        return self._httpget('/Message/Get/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/Message/Get/{RequestNum}', CorpNum, UserID)
 
     def cancelReserve(self, CorpNum, ReceiptNum, UserID=None):
         """ 문자 예약전송 취소
@@ -405,10 +400,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/Message/' + ReceiptNum + '/Cancel', CorpNum, UserID)
+        return self._httpget(f'/Message/{ReceiptNum}/Cancel', CorpNum, UserID)
 
     def cancelReserveRN(self, CorpNum, RequestNum, UserID=None):
         """ 문자 예약전송 취소
@@ -421,10 +416,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if RequestNum == None or RequestNum == '':
+        if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다.")
 
-        return self._httpget('/Message/Cancel/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/Message/Cancel/{RequestNum}', CorpNum, UserID)
 
     def search(self, CorpNum, SDate, EDate, State, Item, ReserveYN, SenderYN, Page, PerPage, Order, UserID=None, QString=None):
         """ 문자전송 목록조회
@@ -443,25 +438,25 @@ class MessageService(PopbillBase):
                 QString : 조회 검색어, 발신자명 또는 수신자명 기재
         """
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
         uri = '/Message/Search'
-        uri += '?SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri += f'?SDate={SDate}'
+        uri += f'&EDate={EDate}'
         uri += '&State=' + ','.join(State)
         uri += '&Item=' + ','.join(Item)
-        uri += '&ReserveYN=' + ReserveYN
-        uri += '&SenderYN=' + SenderYN
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&ReserveYN={ReserveYN}'
+        uri += f'&SenderYN={SenderYN}'
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         if QString is not None:
-            uri += '&QString=' + QString
+            uri += f'&QString={QString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -476,10 +471,10 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if ToGo == None or ToGo == '':
+        if ToGo is None or ToGo == '':
             raise PopbillException(-99999999, "TOGO값이 입력되지 않았습니다.")
 
-        result = self._httpget('/Message/?TG=' + ToGo, CorpNum, UserID)
+        result = self._httpget(f'/Message/?TG={ToGo}', CorpNum, UserID)
 
         return result.url
 
@@ -532,7 +527,7 @@ class MessageService(PopbillBase):
             raise
                 PopbillException
         """
-        if reciptNumList == None or len(reciptNumList) < 1:
+        if reciptNumList is None or len(reciptNumList) < 1:
             raise PopbillException(-99999999, "접수번호가 입력되지 않았습니다.")
 
         postData = self._stringtify(reciptNumList)

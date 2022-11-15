@@ -20,11 +20,14 @@ from popbill import *
 
 class EasyFinBankServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.easyFinBankService = EasyFinBankService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.easyFinBankService.IsTest = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
+    def setUpClass(cls):
+        cls.easyFinBankService = EasyFinBankService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.easyFinBankService.IsTest = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
 
     # def test_registBankAccount(self):
     #

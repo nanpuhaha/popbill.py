@@ -19,11 +19,14 @@ from popbill import *
 
 class HTCashbillServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.htCashbillService = HTCashbillService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.htCashbillService.IsTest = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
+    def setUpClass(cls):
+        cls.htCashbillService = HTCashbillService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.htCashbillService.IsTest = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
 
     def test_checkID(self):
         response = self.htCashbillService.checkID("testkorea")
@@ -80,7 +83,7 @@ class HTCashbillServiceTestCase(unittest.TestCase):
         chrgInfo = self.htCashbillService.getChargeInfo(self.testCorpNum, self.testUserID)
         self.assertIsNotNone(chrgInfo)
 
-        print("단가 : " + chrgInfo.unitCost)
+        print(f"단가 : {chrgInfo.unitCost}")
 
     def test_requestJob(self):
         Type = "SELL"
@@ -90,7 +93,7 @@ class HTCashbillServiceTestCase(unittest.TestCase):
         jobID = self.htCashbillService.requestJob(self.testCorpNum, Type, SDate, EDate, self.testUserID)
         self.assertIsNotNone(jobID, "수집 요청")
 
-        print ("작업아이디(jobID) : " + jobID)
+        print(f"작업아이디(jobID) : {jobID}")
 
     def test_getJobState(self):
         JobID = "016072811000000010"
@@ -203,7 +206,7 @@ class HTCashbillServiceTestCase(unittest.TestCase):
     def test_getCertificateExpireDate(self):
         expireDate = self.htCashbillService.getCertificateExpireDate(self.testCorpNum, self.testUserID)
         self.assertIsNotNone(expireDate)
-        print("CertificateExpireDate : " + expireDate)
+        print(f"CertificateExpireDate : {expireDate}")
 
     def test_checkCertValidation(self):
         try:

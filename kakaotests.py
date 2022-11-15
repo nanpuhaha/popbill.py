@@ -19,11 +19,14 @@ from popbill import *
 
 class KakaoServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.kakaoService = KakaoService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.kakaoService.IsTest = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
+    def setUpClass(cls):
+        cls.kakaoService = KakaoService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.kakaoService.IsTest = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
 
     def test_getUR_sender(self):
         url = self.kakaoService.getURL(self.testCorpNum, self.testUserID, "SENDER")
@@ -44,41 +47,34 @@ class KakaoServiceTestCase(unittest.TestCase):
     def test_listPlusFriendID(self):
         response = self.kakaoService.listPlusFriendID(self.testCorpNum, self.testUserID)
 
-        i = 1
-        for info in response:
+        for i, info in enumerate(response, start=1):
             print("====== 플러시친구 목록 확인 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_getSenderNumberList(self):
         response = self.kakaoService.getSenderNumberList(self.testCorpNum, self.testUserID)
 
-        i = 1
-        for info in response:
+        for i, info in enumerate(response, start=1):
             print("====== 발신번호 목록 확인 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_listATSTemplate(self):
         response = self.kakaoService.listATSTemplate(self.testCorpNum, self.testUserID)
 
-        i = 1
-        for info in response:
+        for i, info in enumerate(response, start=1):
             print("====== 알림톡 템플릿 목록 확인 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_sendATS(self):
         TemplateCode = "019020000163"
         Sender = "07043042992"
-        Content = "[ 팝빌 ]\n"
-        Content += "신청하신 #{템플릿코드}에 대한 심사가 완료되어 승인 처리되었습니다.\n"
+        Content = "[ 팝빌 ]\n" + "신청하신 #{템플릿코드}에 대한 심사가 완료되어 승인 처리되었습니다.\n"
         Content += "해당 템플릿으로 전송 가능합니다.\n\n"
         Content += "문의사항 있으시면 파트너센터로 편하게 연락주시기 바랍니다.\n\n"
         Content += "팝빌 파트너센터 : 1600-8536\n"
@@ -89,29 +85,27 @@ class KakaoServiceTestCase(unittest.TestCase):
         Receiver = "010111222"
         ReceiverName = "kimhyunjin"
 
-        KakaoButtons = []
-        KakaoButtons.append(
+        KakaoButtons = [
             KakaoButton(
                 n="웹링크",
                 t="WL",
                 u1="https://www.popbill.com",
-                u2="http://www.popbill.com"
+                u2="http://www.popbill.com",
             )
-        )
+        ]
 
         try:
             receiptNum = self.kakaoService.sendATS(self.testCorpNum, TemplateCode, Sender, Content, AltContent,
                                                    AltSendType, SndDT, Receiver, ReceiverName, self.testUserID,
                                                    "", KakaoButtons)
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
     def test_sendATS_multi(self):
         TemplateCode = "019020000163"
         Sender = "07043042991"
-        Content = "[ 팝빌 ]\n"
-        Content += "신청하신 #{템플릿코드}에 대한 심사가 완료되어 승인 처리되었습니다.\n"
+        Content = "[ 팝빌 ]\n" + "신청하신 #{템플릿코드}에 대한 심사가 완료되어 승인 처리되었습니다.\n"
         Content += "해당 템플릿으로 전송 가능합니다.\n\n"
         Content += "문의사항 있으시면 파트너센터로 편하게 연락주시기 바랍니다.\n\n"
         Content += "팝빌 파트너센터 : 1600-8536\n"
@@ -121,31 +115,30 @@ class KakaoServiceTestCase(unittest.TestCase):
         AltSendType = ""
         SndDT = ""
 
-        KakaoMessages = []
-        for x in range(0, 1):
-            KakaoMessages.append(
-                KakaoReceiver(
-                    rcv="07043042992",
-                    rcvnm="linkhub",
-                    msg=Content,
-                    altmsg="알림톡 우선순위 대체문자"
-                )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv="07043042992",
+                rcvnm="linkhub",
+                msg=Content,
+                altmsg="알림톡 우선순위 대체문자",
             )
+            for _ in range(1)
+        ]
 
-        KakaoButtons = []
-        KakaoButtons.append(
+        KakaoButtons = [
             KakaoButton(
                 n="웹링크",
                 t="WL",
                 u1="https://www.popbill.com",
-                u2="http://www.popbill.com"
+                u2="http://www.popbill.com",
             )
-        )
+        ]
+
         try:
             receiptNum = self.kakaoService.sendATS_multi(self.testCorpNum, TemplateCode, Sender, "", "",
                                                          AltSendType, SndDT, KakaoMessages, self.testUserID,
                                                          "", KakaoButtons)
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
@@ -159,16 +152,15 @@ class KakaoServiceTestCase(unittest.TestCase):
         Receiver = "07043042992"
         ReceiverName = "kimhyunjin"
 
-        KakaoButtons = []
-        for x in range(0, 1):
-            KakaoButtons.append(
-                KakaoButton(
-                    n="팝빌 바로가기",
-                    t="WL",
-                    u1="http://www.popbill.com",
-                    u2="http://www.popbill.com"
-                )
+        KakaoButtons = [
+            KakaoButton(
+                n="팝빌 바로가기",
+                t="WL",
+                u1="http://www.popbill.com",
+                u2="http://www.popbill.com",
             )
+            for _ in range(1)
+        ]
 
         KakaoButtons.append(
             KakaoButton(
@@ -185,7 +177,7 @@ class KakaoServiceTestCase(unittest.TestCase):
             receiptNum = self.kakaoService.sendFTS(self.testCorpNum, PlusFriendID, Sender, Content, AltContent,
                                                    AltSendType, SndDT, Receiver, ReceiverName, KakaoButtons, AdsYN,
                                                    self.testUserID, "")
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
@@ -197,27 +189,25 @@ class KakaoServiceTestCase(unittest.TestCase):
         AltSendType = "A"
         SndDT = ""
 
-        KakaoMessages = []
-        for x in range(0, 2):
-            KakaoMessages.append(
-                KakaoReceiver(
-                    rcv="07043042992",
-                    rcvnm="kimhyunjin",
-                    msg="친구톡 우선순위 내용",
-                    altmsg="대체문자 우선순위 내용"
-                )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv="07043042992",
+                rcvnm="kimhyunjin",
+                msg="친구톡 우선순위 내용",
+                altmsg="대체문자 우선순위 내용",
             )
+            for _ in range(2)
+        ]
 
-        KakaoButtons = []
-        for x in range(0, 1):
-            KakaoButtons.append(
-                KakaoButton(
-                    n="팝빌 바로가기",
-                    t="MD",
-                    u1="http://www.popbill.com",
-                    u2="http://www.popbill.com"
-                )
+        KakaoButtons = [
+            KakaoButton(
+                n="팝빌 바로가기",
+                t="MD",
+                u1="http://www.popbill.com",
+                u2="http://www.popbill.com",
             )
+            for _ in range(1)
+        ]
 
         AdsYN = False
 
@@ -225,7 +215,7 @@ class KakaoServiceTestCase(unittest.TestCase):
             receiptNum = self.kakaoService.sendFTS_same(self.testCorpNum, PlusFriendID, Sender, "", "",
                                                         AltSendType, SndDT, KakaoMessages, KakaoButtons, AdsYN,
                                                         self.testUserID, "20180809150622")
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
@@ -241,16 +231,16 @@ class KakaoServiceTestCase(unittest.TestCase):
         Receiver = "07043042992"
         ReceiverName = None
 
-        KakaoButtons = []
-
-        KakaoButtons.append(
+        KakaoButtons = [
             KakaoButton(
                 n="팝빌 바로가기",
                 t="WL",
                 u1="http://www.popbill.com",
-                u2="http://www.popbill.com"
+                u2="http://www.popbill.com",
             )
-        )
+        ]
+
+
         KakaoButtons.append(
             KakaoButton(
                 n="링크허브 바로가기",
@@ -278,7 +268,7 @@ class KakaoServiceTestCase(unittest.TestCase):
             receiptNum = self.kakaoService.sendFMS(self.testCorpNum, PlusFriendID, Sender, Content, AltContent,
                                                    AltSendType, SndDT, FilePath, ImageURL, Receiver, ReceiverName,
                                                    KakaoButtons, AdsYN, self.testUserID, "20180809150651")
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
@@ -292,35 +282,33 @@ class KakaoServiceTestCase(unittest.TestCase):
         FilePath = "FMSImage.jpg"
         ImageURL = "http://www.linkhub.co.kr"
 
-        KakaoMessages = []
-        for x in range(0, 2):
-            KakaoMessages.append(
-                KakaoReceiver(
-                    rcv="07043042992",
-                    rcvnm="kimhyunjin",
-                    msg="친구톡 우선순위 내용",
-                    altmsg="대체문자 우선순위 내용"
-                )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv="07043042992",
+                rcvnm="kimhyunjin",
+                msg="친구톡 우선순위 내용",
+                altmsg="대체문자 우선순위 내용",
             )
+            for _ in range(2)
+        ]
 
-        for x in range(0, 2):
-            KakaoMessages.append(
-                KakaoReceiver(
-                    rcv="07043042992",
-                    rcvnm="kimhyunjin",
-                )
+        KakaoMessages.extend(
+            KakaoReceiver(
+                rcv="07043042992",
+                rcvnm="kimhyunjin",
             )
+            for _ in range(2)
+        )
 
-        KakaoButtons = []
-        for x in range(0, 5):
-            KakaoButtons.append(
-                KakaoButton(
-                    n="팝빌 바로가기",
-                    t="WL",
-                    u1="http://www.popbill.com",
-                    u2="http://www.popbill.com"
-                )
+        KakaoButtons = [
+            KakaoButton(
+                n="팝빌 바로가기",
+                t="WL",
+                u1="http://www.popbill.com",
+                u2="http://www.popbill.com",
             )
+            for _ in range(5)
+        ]
 
         AdsYN = False
 
@@ -328,7 +316,7 @@ class KakaoServiceTestCase(unittest.TestCase):
             receiptNum = self.kakaoService.sendFMS_multi(self.testCorpNum, PlusFriendID, Sender, Content, AltContent,
                                                          AltSendType, SndDT, FilePath, ImageURL, KakaoMessages,
                                                          KakaoButtons, AdsYN, self.testUserID, "20180809151234")
-            print("접수번호 (receiptNum) : %s" % receiptNum)
+            print(f"접수번호 (receiptNum) : {receiptNum}")
         except PopbillException as PE:
             print(PE.message)
 
@@ -348,70 +336,62 @@ class KakaoServiceTestCase(unittest.TestCase):
         ReceipNum = "018022815501800001"
         response = self.kakaoService.getMessages(self.testCorpNum, ReceipNum, self.testUserID)
 
-        print("contentType (카카오톡 유형): %s " % response.contentType)
-        print("templateCode (템플릿코드): %s " % response.templateCode)
-        print("plusFriendID (플러스친구 아이디): %s " % response.plusFriendID)
-        print("sendNum (발신번호): %s " % response.sendNum)
-        print("altContent ([동보] 대체문자 내용): %s " % response.altContent)
-        print("altSendType (대체문자 유형): %s " % response.sndDT)
-        print("reserveDT (예약일시): %s " % response.reserveDT)
-        print("adsYN (광고여부): %s " % response.adsYN)
-        print("successCnt (성공건수): %s " % response.successCnt)
-        print("failCnt (실패건수): %s " % response.failCnt)
-        print("altCnt (대체문자 건수): %s " % response.altCnt)
-        print("cancelCnt (취소건수): %s " % response.cancelCnt)
-        print("adsYN (광고전송 여부): %s " % response.adsYN)
+        print(f"contentType (카카오톡 유형): {response.contentType} ")
+        print(f"templateCode (템플릿코드): {response.templateCode} ")
+        print(f"plusFriendID (플러스친구 아이디): {response.plusFriendID} ")
+        print(f"sendNum (발신번호): {response.sendNum} ")
+        print(f"altContent ([동보] 대체문자 내용): {response.altContent} ")
+        print(f"altSendType (대체문자 유형): {response.sndDT} ")
+        print(f"reserveDT (예약일시): {response.reserveDT} ")
+        print(f"adsYN (광고여부): {response.adsYN} ")
+        print(f"successCnt (성공건수): {response.successCnt} ")
+        print(f"failCnt (실패건수): {response.failCnt} ")
+        print(f"altCnt (대체문자 건수): {response.altCnt} ")
+        print(f"cancelCnt (취소건수): {response.cancelCnt} ")
+        print(f"adsYN (광고전송 여부): {response.adsYN} ")
         print
 
-        i = 1
-        for info in response.msgs:
+        for i, info in enumerate(response.msgs, start=1):
             print("====== 전송결과 정보 배열 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
-        i = 1
-        for info in response.btns:
+        for i, info in enumerate(response.btns, start=1):
             print("====== 버튼 목록 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_getMessageRN(self):
         RequestNum = "20180809151234"
         response = self.kakaoService.getMessagesRN(self.testCorpNum, RequestNum, self.testUserID)
 
-        print("contentType (카카오톡 유형): %s " % response.contentType)
-        print("templateCode (템플릿코드): %s " % response.templateCode)
-        print("plusFriendID (플러스친구 아이디): %s " % response.plusFriendID)
-        print("sendNum (발신번호): %s " % response.sendNum)
-        print("altContent ([동보] 대체문자 내용): %s " % response.altContent)
-        print("altSendType (대체문자 유형): %s " % response.sndDT)
-        print("reserveDT (예약일시): %s " % response.reserveDT)
-        print("adsYN (광고여부): %s " % response.adsYN)
-        print("successCnt (성공건수): %s " % response.successCnt)
-        print("failCnt (실패건수): %s " % response.failCnt)
-        print("altCnt (대체문자 건수): %s " % response.altCnt)
-        print("cancelCnt (취소건수): %s " % response.cancelCnt)
-        print("adsYN (광고전송 여부): %s " % response.adsYN)
+        print(f"contentType (카카오톡 유형): {response.contentType} ")
+        print(f"templateCode (템플릿코드): {response.templateCode} ")
+        print(f"plusFriendID (플러스친구 아이디): {response.plusFriendID} ")
+        print(f"sendNum (발신번호): {response.sendNum} ")
+        print(f"altContent ([동보] 대체문자 내용): {response.altContent} ")
+        print(f"altSendType (대체문자 유형): {response.sndDT} ")
+        print(f"reserveDT (예약일시): {response.reserveDT} ")
+        print(f"adsYN (광고여부): {response.adsYN} ")
+        print(f"successCnt (성공건수): {response.successCnt} ")
+        print(f"failCnt (실패건수): {response.failCnt} ")
+        print(f"altCnt (대체문자 건수): {response.altCnt} ")
+        print(f"cancelCnt (취소건수): {response.cancelCnt} ")
+        print(f"adsYN (광고전송 여부): {response.adsYN} ")
         print
 
-        i = 1
-        for info in response.msgs:
+        for i, info in enumerate(response.msgs, start=1):
             print("====== 전송결과 정보 배열 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
-        i = 1
-        for info in response.btns:
+        for i, info in enumerate(response.btns, start=1):
             print("====== 버튼 목록 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_search(self):
@@ -429,20 +409,18 @@ class KakaoServiceTestCase(unittest.TestCase):
         response = self.kakaoService.search(self.testCorpNum, SDate, EDate, State, Item, ReserveYN, SenderYN, Page,
                                             PerPage, Order, self.testUserID, QString)
 
-        print("code (응답코드) : %s " % response.code)
-        print("message (응답메시지) : %s " % response.message)
-        print("total (검색결과 건수) : %s " % response.total)
-        print("perPage (페이지당 검색개수) : %s " % response.perPage)
-        print("pageNum (페에지 번호) : %s " % response.pageNum)
+        print(f"code (응답코드) : {response.code} ")
+        print(f"message (응답메시지) : {response.message} ")
+        print(f"total (검색결과 건수) : {response.total} ")
+        print(f"perPage (페이지당 검색개수) : {response.perPage} ")
+        print(f"pageNum (페에지 번호) : {response.pageNum} ")
         print("pageCount (페이지 개수) : %s \n" % response.pageCount)
         print
 
-        i = 1
-        for info in response.list:
+        for i, info in enumerate(response.list, start=1):
             print("====== 전송내역 목록 조회 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("%s : %s" % (key, value))
-            i += 1
+                print(f"{key} : {value}")
             print
 
     def test_getUnitCost(self):

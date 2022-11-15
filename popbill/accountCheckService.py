@@ -53,7 +53,7 @@ class AccountCheckService(PopbillBase):
     def checkAccountInfo(self, CorpNum, BankCode, AccountNumber, UserID = None):
 
         uri = "/EasyFin/AccountCheck"
-        uri += "?c="+BankCode
-        uri += "&n="+AccountNumber
+        uri += f"?c={BankCode}"
+        uri += f"&n={AccountNumber}"
 
         return self._httppost(uri, "", CorpNum, UserID)

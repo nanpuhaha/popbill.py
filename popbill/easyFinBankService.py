@@ -36,7 +36,7 @@ class EasyFinBankService(PopbillBase):
         """
 
         uri = "/EasyFin/Bank/BankAccount/Regist"
-        uri += "?UsePeriod="+AccountInfo.UsePeriod
+        uri += f"?UsePeriod={AccountInfo.UsePeriod}"
 
         postData = self._stringtify(AccountInfo)
 
@@ -54,7 +54,8 @@ class EasyFinBankService(PopbillBase):
                 PopbillException
         """
 
-        uri = "/EasyFin/Bank/BankAccount/"+AccountInfo.BankCode+"/"+AccountInfo.AccountNumber+"/Update"
+        uri = f"/EasyFin/Bank/BankAccount/{AccountInfo.BankCode}/{AccountInfo.AccountNumber}/Update"
+
 
         postData = self._stringtify(AccountInfo)
 
@@ -76,9 +77,9 @@ class EasyFinBankService(PopbillBase):
         """
 
         uri = "/EasyFin/Bank/BankAccount/Close"
-        uri += '?BankCode=' + BankCode
-        uri += '&AccountNumber=' + AccountNumber
-        uri += '&CloseType=' + CloseType
+        uri += f'?BankCode={BankCode}'
+        uri += f'&AccountNumber={AccountNumber}'
+        uri += f'&CloseType={CloseType}'
 
         return self._httppost(uri, '', CorpNum, UserID)
 
@@ -96,8 +97,8 @@ class EasyFinBankService(PopbillBase):
         """
 
         uri = "/EasyFin/Bank/BankAccount/RevokeClose"
-        uri += '?BankCode=' + BankCode
-        uri += '&AccountNumber=' + AccountNumber
+        uri += f'?BankCode={BankCode}'
+        uri += f'&AccountNumber={AccountNumber}'
 
         return self._httppost(uri, '', CorpNum, UserID)
 
@@ -134,7 +135,7 @@ class EasyFinBankService(PopbillBase):
 
     def getBankAccountInfo(self, CorpNum, BankCode, AccountNumber, UserID=None):
 
-        uri = "/EasyFin/Bank/BankAccount/" + BankCode + "/"+ AccountNumber
+        uri = f"/EasyFin/Bank/BankAccount/{BankCode}/{AccountNumber}"
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -165,23 +166,23 @@ class EasyFinBankService(PopbillBase):
             raise
                 PopbillException
         """
-        if BankCode == None or BankCode == '':
+        if BankCode is None or BankCode == '':
             raise PopbillException(-99999999, "은행코드가 입력되지 않았습니다.")
 
-        if AccountNumber == None or AccountNumber == '':
+        if AccountNumber is None or AccountNumber == '':
             raise PopbillException(-99999999, "계좌번호가 입력되지 않았습니다.")
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
         uri = '/EasyFin/Bank/BankAccount'
-        uri += '?AccountNumber=' + AccountNumber
-        uri += '&BankCode=' + BankCode
-        uri += '&SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri += f'?AccountNumber={AccountNumber}'
+        uri += f'&BankCode={BankCode}'
+        uri += f'&SDate={SDate}'
+        uri += f'&EDate={EDate}'
 
         return self._httppost(uri, "", CorpNum, UserID).jobID
 
@@ -196,10 +197,10 @@ class EasyFinBankService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        return self._httpget('/EasyFin/Bank/' + JobID + '/State', CorpNum, UserID)
+        return self._httpget(f'/EasyFin/Bank/{JobID}/State', CorpNum, UserID)
 
     def listActiveJob(self, CorpNum, UserID=None):
         """ 수집 상태 목록 확인
@@ -230,18 +231,18 @@ class EasyFinBankService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/EasyFin/Bank/' + JobID
+        uri = f'/EasyFin/Bank/{JobID}'
         uri += '?TradeType=' + ','.join(TradeType)
 
         if SearchString is not None:
-            uri += '&SearchString=' + SearchString
+            uri += f'&SearchString={SearchString}'
 
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -258,14 +259,14 @@ class EasyFinBankService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/EasyFin/Bank/' + JobID +'/Summary'
+        uri = f'/EasyFin/Bank/{JobID}/Summary'
         uri += '?TradeType=' + ','.join(TradeType)
 
         if SearchString is not None:
-            uri += '&SearchString=' + SearchString
+            uri += f'&SearchString={SearchString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -281,12 +282,12 @@ class EasyFinBankService(PopbillBase):
             raise
                 PopbillException
         """
-        if TID == None or TID == '':
+        if TID is None or TID == '':
             raise PopbillException(-99999999, "거래내역 아이디가 입력되지 않았습니다.")
 
         uri = '/EasyFin/Bank/SaveMemo'
-        uri += '?TID=' + TID
-        uri += '&Memo=' + Memo
+        uri += f'?TID={TID}'
+        uri += f'&Memo={Memo}'
 
         return self._httppost(uri, "", CorpNum, UserID)
 
@@ -315,13 +316,13 @@ class EasyFinBankService(PopbillBase):
                 PopbillException
         """
 
-        if BankCode == None or BankCode == '':
+        if BankCode is None or BankCode == '':
             raise PopbillException(-99999999, "은행코드가 입력되지 않았습니다.")
 
-        if AccountNumber == None or AccountNumber == '':
+        if AccountNumber is None or AccountNumber == '':
             raise PopbillException(-99999999, "계좌번호가 입력되지 않았습니다.")
 
-        uri = '/EasyFin/Bank/Contract/' + BankCode +'/' + AccountNumber
+        uri = f'/EasyFin/Bank/Contract/{BankCode}/{AccountNumber}'
 
         return self._httpget(uri, CorpNum, UserID)
 

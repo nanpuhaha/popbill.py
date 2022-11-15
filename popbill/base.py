@@ -50,10 +50,10 @@ def __with_metaclass(meta, *bases):
 class Singleton(type):
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+    def __call__(self, *args, **kwargs):
+        if self not in self._instances:
+            self._instances[self] = super(Singleton, self).__call__(*args, **kwargs)
+        return self._instances[self]
 
 
 class PopbillBase(__with_metaclass(Singleton, object)):
@@ -76,16 +76,14 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         self.__timeOut = timeOut
 
     def _getConn(self):
-        if stime() - self.__connectedAt >= self.__timeOut or self.__conn == None:
+        if stime() - self.__connectedAt >= self.__timeOut or self.__conn is None:
             if self.UseStaticIP :
                 self.__conn = httpclient.HTTPSConnection(ServiceURL_GA_TEST if self.IsTest else ServiceURL_GA_REAL)
             else :
                 self.__conn = httpclient.HTTPSConnection(ServiceURL_TEST if self.IsTest else ServiceURL_REAL)
 
             self.__connectedAt = stime()
-            return self.__conn
-        else:
-            return self.__conn
+        return self.__conn
 
     def _addScope(self, newScope):
         self.__scopes.append(newScope)
@@ -145,10 +143,10 @@ class PopbillBase(__with_metaclass(Singleton, object)):
             raise
                 PopbillException
         """
-        if ToGo == None or ToGo == '':
+        if ToGo is None or ToGo == '':
             raise PopbillException(-99999999, "TOGO값이 입력되지 않았습니다.")
 
-        result = self._httpget('/?TG=' + ToGo, CorpNum, UserID)
+        result = self._httpget(f'/?TG={ToGo}', CorpNum, UserID)
         return result.url
 
     def getPaymentURL(self, CorpNum, UserID=None):
@@ -212,10 +210,12 @@ class PopbillBase(__with_metaclass(Singleton, object)):
             raise
                 PopbillException
         """
-        if CorpNum == None or CorpNum == '':
+        if CorpNum is None or CorpNum == '':
             raise PopbillException(-99999999, "사업자번호가 입력되지 않았습니다.")
 
-        return self._httpget('/Join?CorpNum=' + CorpNum + '&LID=' + self.__linkID, None, None)
+        return self._httpget(
+            f'/Join?CorpNum={CorpNum}&LID={self.__linkID}', None, None
+        )
 
     def joinMember(self, JoinInfo):
         """ 팝빌 회원가입
@@ -239,10 +239,10 @@ class PopbillBase(__with_metaclass(Singleton, object)):
             raise
                 PopbillException
         """
-        if checkID == None or checkID == '':
+        if checkID is None or checkID == '':
             raise PopbillException(-99999999, "아이디가 입력되지 않았습니다.")
 
-        return self._httpget('/IDCheck?ID=' + checkID)
+        return self._httpget(f'/IDCheck?ID={checkID}')
 
     def getContactInfo(self, CorpNum, ContactID, UserID=None):
         """ 담당자 정보 확인
@@ -251,7 +251,7 @@ class PopbillBase(__with_metaclass(Singleton, object)):
                 ContactID : 확인할 담당자 아이디
                 UserID : 회원 아이디
         """
-        if ContactID == None or ContactID == '':
+        if ContactID is None or ContactID == '':
             raise PopbillException(-99999999, "담당자 아이디가 입력되지 않았습니다.")
 
         postData = "{'id':" + "'" + ContactID + "'}"
@@ -363,7 +363,7 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         headers = {"x-pb-version": APIVersion}
 
         if CorpNum != None:
-            headers["Authorization"] = "Bearer " + self._getToken(CorpNum).session_token
+            headers["Authorization"] = f"Bearer {self._getToken(CorpNum).session_token}"
 
         if UserID != None:
             headers["x-pb-userid"] = UserID
@@ -378,25 +378,25 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         if Utils.isGzip(response, responseString):
             responseString = Utils.gzipDecomp(responseString)
 
-        if response.status != 200:
-            err = Utils.json2obj(responseString)
-            raise PopbillException(int(err.code), err.message)
-        else:
+        if response.status == 200:
             return Utils.json2obj(responseString)
+        err = Utils.json2obj(responseString)
+        raise PopbillException(int(err.code), err.message)
 
     def _httppost(self, url, postData, CorpNum=None, UserID=None, ActionOverride=None, contentsType=None):
 
         conn = self._getConn()
 
-        headers = {"x-pb-version": APIVersion}
+        headers = {
+            "x-pb-version": APIVersion,
+            "Content-Type": contentsType
+            if contentsType != None
+            else "application/json; charset=utf8",
+        }
 
-        if contentsType != None:
-            headers["Content-Type"] = contentsType
-        else:
-            headers["Content-Type"] = "application/json; charset=utf8"
 
         if CorpNum != None:
-            headers["Authorization"] = "Bearer " + self._getToken(CorpNum).session_token
+            headers["Authorization"] = f"Bearer {self._getToken(CorpNum).session_token}"
         if UserID != None:
             headers["x-pb-userid"] = UserID
 
@@ -413,24 +413,27 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         if Utils.isGzip(response, responseString):
             responseString = Utils.gzipDecomp(responseString)
 
-        if response.status != 200:
-            err = Utils.json2obj(responseString)
-            raise PopbillException(int(err.code), err.message)
-        else:
+        if response.status == 200:
             return Utils.json2obj(responseString)
+        err = Utils.json2obj(responseString)
+        raise PopbillException(int(err.code), err.message)
 
     def _httpBulkPost(self, url, postData, SubmitID, CorpNum=None, UserID=None, ActionOverride=None):
         conn = self._getConn()
 
-        headers = {"x-pb-version": APIVersion}
+        headers = {
+            "x-pb-version": APIVersion,
+            "Content-Type": "application/json; charset=utf8",
+            "x-pb-message-digest": base64.b64encode(
+                sha1(postData).digest()
+            ).decode('utf-8'),
+        }
 
-        headers["Content-Type"] = "application/json; charset=utf8"
 
-        headers["x-pb-message-digest"] = base64.b64encode(sha1(postData).digest()).decode('utf-8')
         headers["x-pb-submit-id"] = SubmitID
 
         if CorpNum != None:
-            headers["Authorization"] = "Bearer " + self._getToken(CorpNum).session_token
+            headers["Authorization"] = f"Bearer {self._getToken(CorpNum).session_token}"
         if UserID != None:
             headers["x-pb-userid"] = UserID
 
@@ -447,11 +450,10 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         if Utils.isGzip(response, responseString):
             responseString = Utils.gzipDecomp(responseString)
 
-        if response.status != 200:
-            err = Utils.json2obj(responseString)
-            raise PopbillException(int(err.code), err.message)
-        else:
+        if response.status == 200:
             return Utils.json2obj(responseString)
+        err = Utils.json2obj(responseString)
+        raise PopbillException(int(err.code), err.message)
 
     def _httppost_files(self, url, postData, Files, CorpNum, UserID=None):
 
@@ -459,10 +461,14 @@ class PopbillBase(__with_metaclass(Singleton, object)):
 
         boundary = "--POPBILL_PYTHON--"
 
-        headers = {"x-pb-version": APIVersion, "Content-Type": "multipart/form-data; boundary=%s" % boundary}
+        headers = {
+            "x-pb-version": APIVersion,
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        }
+
 
         if CorpNum != None:
-            headers["Authorization"] = "Bearer " + self._getToken(CorpNum).session_token
+            headers["Authorization"] = f"Bearer {self._getToken(CorpNum).session_token}"
 
         if UserID != None:
             headers["x-pb-userid"] = UserID
@@ -474,22 +480,22 @@ class PopbillBase(__with_metaclass(Singleton, object)):
 
         buff = BytesIO()
 
-        if postData != None and postData != '':
-            buff.write((CRLF + '--' + boundary + CRLF).encode('utf-8'))
+        if postData not in [None, '']:
+            buff.write(f'{CRLF}--{boundary}{CRLF}'.encode('utf-8'))
             buff.write(('Content-Disposition: form-data; name="form"' + CRLF).encode('utf-8'))
             buff.write(CRLF.encode('utf-8'))
             buff.write(postData.encode('utf-8'))
 
         for f in Files:
-            buff.write((CRLF + '--' + boundary + CRLF).encode('utf-8'))
+            buff.write(f'{CRLF}--{boundary}{CRLF}'.encode('utf-8'))
             buff.write(
                 ('Content-Disposition: form-data; name="%s"; filename="%s"' % (f.fieldName, f.fileName) + CRLF).encode(
                     'utf-8'))
-            buff.write(('Content-Type: Application/octet-stream' + CRLF).encode('utf-8'))
+            buff.write(f'Content-Type: Application/octet-stream{CRLF}'.encode('utf-8'))
             buff.write(CRLF.encode('utf-8'))
             buff.write(f.fileData)
 
-        buff.write((CRLF + '--' + boundary + '--' + CRLF + CRLF).encode('utf-8'))
+        buff.write(f'{CRLF}--{boundary}--{CRLF}{CRLF}'.encode('utf-8'))
 
         multiparted = buff.getvalue()
 
@@ -501,11 +507,10 @@ class PopbillBase(__with_metaclass(Singleton, object)):
         if Utils.isGzip(response, responseString):
             responseString = Utils.gzipDecomp(responseString)
 
-        if response.status != 200:
-            err = Utils.json2obj(responseString)
-            raise PopbillException(int(err.code), err.message)
-        else:
+        if response.status == 200:
             return Utils.json2obj(responseString)
+        err = Utils.json2obj(responseString)
+        raise PopbillException(int(err.code), err.message)
 
     def _parse(self, jsonString):
         return Utils.json2obj(jsonString)
@@ -570,11 +575,9 @@ class Utils:
 
     @staticmethod
     def isGzip(response, data):
-        if (response.getheader('Content-Encoding') != None and
-                'gzip' in response.getheader('Content-Encoding')):
-            return True
-        else:
-            return False
+        return response.getheader(
+            'Content-Encoding'
+        ) != None and 'gzip' in response.getheader('Content-Encoding')
 
     @staticmethod
     def gzipDecomp(data):

@@ -39,10 +39,10 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if ItemCode == None or ItemCode == '':
+        if ItemCode is None or ItemCode == '':
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httpget('/Statement/ChargeInfo/' + ItemCode, CorpNum, UserID)
+        return self._httpget(f'/Statement/ChargeInfo/{ItemCode}', CorpNum, UserID)
 
     def getURL(self, CorpNum, UserID, ToGo):
         """ 팝빌 전자명세서 관련 URL
@@ -55,10 +55,10 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if ToGo == None or ToGo == '':
+        if ToGo is None or ToGo == '':
             raise PopbillException(-99999999, "TOGO값이 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement?TG=' + ToGo, CorpNum, UserID)
+        result = self._httpget(f'/Statement?TG={ToGo}', CorpNum, UserID)
         return result.url
 
     def getUnitCost(self, CorpNum, ItemCode):
@@ -73,10 +73,10 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '?cfg=UNITCOST', CorpNum)
+        result = self._httpget(f'/Statement/{str(ItemCode)}?cfg=UNITCOST', CorpNum)
         return float(result.unitCost)
 
     def checkMgtKeyInUse(self, CorpNum, ItemCode, MgtKey):
@@ -92,14 +92,14 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         try:
-            result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey, CorpNum)
-            return result.itemKey != None and result.itemKey != ""
+            result = self._httpget(f'/Statement/{str(ItemCode)}/{MgtKey}', CorpNum)
+            return result.itemKey not in [None, ""]
 
         except PopbillException as PE:
             if PE.code == -12000004:
@@ -119,11 +119,11 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if statement == None:
+        if statement is None:
             raise PopbillException(-99999999, "전송할 전자명세서 정보가 입력되지 않았습니다.")
-        if SendNum == None or SendNum == '':
+        if SendNum is None or SendNum == '':
             raise PopbillException(-99999999, "팩스전송 발신번호가 올바르지 않았습니다.")
-        if ReceiveNum == None or ReceiveNum == '':
+        if ReceiveNum is None or ReceiveNum == '':
             raise PopbillException(-99999999, "팩스전송 수신번호가 올바르지 않습니다.")
 
         statement.sendNum = SendNum
@@ -146,14 +146,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if statement == None:
+        if statement is None:
             raise PopbillException(-99999999, "등록할 전자명세서 정보가 입력되지 않았습니다.")
 
-        if Memo != None or Memo != '':
-            statement.memo = Memo
+        statement.memo = Memo
 
-        if EmailSubect != None or EmailSubect != '':
-            statement.emailSubject = EmailSubect
+        statement.emailSubject = EmailSubect
 
         postData = self._stringtify(statement)
 
@@ -170,7 +168,7 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if statement == None:
+        if statement is None:
             raise PopbillException(-99999999, "등록할 전자명세서 정보가 입력되지 않았습니다.")
 
         postData = self._stringtify(statement)
@@ -193,16 +191,22 @@ class StatementService(PopbillBase):
                 PopbillException
         """
 
-        if Statement == None:
+        if Statement is None:
             raise PopbillException(-99999999, "등록할 전자명세서 정보가 입력되지 않았습니다.")
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         postData = self._stringtify(Statement)
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, 'PATCH')
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            'PATCH',
+        )
 
     def issue(self, CorpNum, ItemCode, MgtKey, Memo=None, EmailSubject=None, UserID=None):
         """ 발행
@@ -220,22 +224,28 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         req = {}
         postData = ""
 
-        if Memo != None and Memo != '':
+        if Memo not in [None, '']:
             req["memo"] = Memo
-        if EmailSubject != None and EmailSubject != '':
+        if EmailSubject not in [None, '']:
             req["emailSubject"] = EmailSubject
 
         postData = self._stringtify(req)
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, "ISSUE")
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            "ISSUE",
+        )
 
     def cancel(self, CorpNum, ItemCode, MgtKey, Memo=None, UserID=None):
         """ 발행취소
@@ -253,17 +263,19 @@ class StatementService(PopbillBase):
                 PopbillException
         """
 
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        postData = ''
-
-        if Memo != None and Memo != '':
-            postData = self._stringtify({"memo": Memo})
-
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, "CANCEL")
+        postData = self._stringtify({"memo": Memo}) if Memo not in [None, ''] else ''
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            "CANCEL",
+        )
 
     def delete(self, CorpNum, ItemCode, MgtKey, UserID=None):
         """ 삭제
@@ -279,12 +291,14 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, '', CorpNum, UserID, "DELETE")
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}', '', CorpNum, UserID, "DELETE"
+        )
 
     def search(self, CorpNum, DType, SDate, EDate, State, ItemCode, Page, PerPage, Order, UserID=None, QString=None):
         """ 목록 조회
@@ -302,27 +316,27 @@ class StatementService(PopbillBase):
                 UserID : 팝빌 회원아이디
         """
 
-        if DType == None or DType == '':
+        if DType is None or DType == '':
             raise PopbillException(-99999999, "일자유형이 입력되지 않았습니다.")
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
         uri = '/Statement/Search'
-        uri += '?DType=' + DType
-        uri += '&SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri += f'?DType={DType}'
+        uri += f'&SDate={SDate}'
+        uri += f'&EDate={EDate}'
         uri += '&State=' + ','.join(State)
         uri += '&ItemCode=' + ','.join(ItemCode)
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         if QString is not None:
-            uri += '&QString=' + QString
+            uri += f'&QString={QString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -339,12 +353,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey, CorpNum)
+        return self._httpget(f'/Statement/{str(ItemCode)}/{MgtKey}', CorpNum)
 
     def getInfos(self, CorpNum, ItemCode, MgtKeyList):
         """ 상태정보 다량 확인, 최대 1000건
@@ -359,12 +373,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKeyList == None or len(MgtKeyList) < 1:
+        if MgtKeyList is None or len(MgtKeyList) < 1:
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
 
         postData = self._stringtify(MgtKeyList)
 
-        return self._httppost('/Statement/' + str(ItemCode), postData, CorpNum)
+        return self._httppost(f'/Statement/{str(ItemCode)}', postData, CorpNum)
 
     def getDetailInfo(self, CorpNum, ItemCode, MgtKey):
         """ 전자명세서 상세정보 확인
@@ -379,12 +393,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?Detail', CorpNum)
+        return self._httpget(f'/Statement/{str(ItemCode)}/{MgtKey}?Detail', CorpNum)
 
     def sendEmail(self, CorpNum, ItemCode, MgtKey, ReceiverEmail, UserID=None):
         """ 메일 재전송
@@ -401,14 +415,20 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         postData = self._stringtify({"receiver": ReceiverEmail})
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, "EMAIL")
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            "EMAIL",
+        )
 
     def sendSMS(self, CorpNum, ItemCode, MgtKey, Sender, Receiver, Contents, UserID=None):
         """ 알림문자 전송
@@ -428,9 +448,9 @@ class StatementService(PopbillBase):
                 PopbillException
         """
 
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         postData = self._stringtify({
@@ -439,7 +459,13 @@ class StatementService(PopbillBase):
             "contents": Contents
         })
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, "SMS")
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            "SMS",
+        )
 
     def sendFAX(self, CorpNum, ItemCode, MgtKey, Sender, Receiver, UserID=None):
         """ 전자명세서 팩스 전송
@@ -457,9 +483,9 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         postData = self._stringtify({
@@ -467,7 +493,13 @@ class StatementService(PopbillBase):
             "receiver": Receiver
         })
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey, postData, CorpNum, UserID, "FAX")
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}',
+            postData,
+            CorpNum,
+            UserID,
+            "FAX",
+        )
 
     def getLogs(self, CorpNum, ItemCode, MgtKey):
         """ 전자명세서 문서이력 목록 확인
@@ -482,12 +514,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '/Logs', CorpNum)
+        return self._httpget(f'/Statement/{str(ItemCode)}/{MgtKey}/Logs', CorpNum)
 
     def attachFile(self, CorpNum, ItemCode, MgtKey, FilePath, UserID=None):
         """ 파일 첨부
@@ -504,11 +536,11 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if FilePath == None or FilePath == "":
+        if FilePath is None or FilePath == "":
             raise PopbillException(-99999999, "파일경로가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
         files = []
 
@@ -520,8 +552,13 @@ class StatementService(PopbillBase):
         except IOError:
             raise PopbillException(-99999999, "해당경로에 파일이 없거나 읽을 수 없습니다.")
 
-        return self._httppost_files('/Statement/' + str(ItemCode) + '/' + MgtKey + '/Files', None, files, CorpNum,
-                                    UserID)
+        return self._httppost_files(
+            f'/Statement/{str(ItemCode)}/{MgtKey}/Files',
+            None,
+            files,
+            CorpNum,
+            UserID,
+        )
 
     def getFiles(self, CorpNum, ItemCode, MgtKey):
         """ 첨부파일 목록 확인
@@ -536,12 +573,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        return self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '/Files', CorpNum)
+        return self._httpget(f'/Statement/{str(ItemCode)}/{MgtKey}/Files', CorpNum)
 
     def deleteFile(self, CorpNum, ItemCode, MgtKey, FileID, UserID=None):
         """ 첨부파일 삭제
@@ -558,17 +595,22 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
-        if FileID == None or FileID == "":
+        if FileID is None or FileID == "":
             raise PopbillException(-99999999, "파일아이디가 입력되지 않았습니다.")
 
         postData = ''
 
-        return self._httppost('/Statement/' + str(ItemCode) + '/' + MgtKey + '/Files/' + FileID, postData, CorpNum,
-                              UserID, 'DELETE')
+        return self._httppost(
+            f'/Statement/{str(ItemCode)}/{MgtKey}/Files/{FileID}',
+            postData,
+            CorpNum,
+            UserID,
+            'DELETE',
+        )
 
     def getPopUpURL(self, CorpNum, ItemCode, MgtKey, UserID=None):
         """ 전자명세서 1장의 팝빌 화면을 볼수있는 PopUp URL 확인
@@ -584,12 +626,15 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?TG=POPUP', CorpNum, UserID)
+        result = self._httpget(
+            f'/Statement/{str(ItemCode)}/{MgtKey}?TG=POPUP', CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -608,12 +653,15 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?TG=PRINT', CorpNum, UserID)
+        result = self._httpget(
+            f'/Statement/{str(ItemCode)}/{MgtKey}?TG=PRINT', CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -631,12 +679,15 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?TG=VIEW', CorpNum, UserID)
+        result = self._httpget(
+            f'/Statement/{str(ItemCode)}/{MgtKey}?TG=VIEW', CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -654,12 +705,15 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?TG=EPRINT', CorpNum, UserID)
+        result = self._httpget(
+            f'/Statement/{str(ItemCode)}/{MgtKey}?TG=EPRINT', CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -677,12 +731,15 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/Statement/' + str(ItemCode) + '/' + MgtKey + '?TG=MAIL', CorpNum, UserID)
+        result = self._httpget(
+            f'/Statement/{str(ItemCode)}/{MgtKey}?TG=MAIL', CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -700,14 +757,17 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKeyList == None:
+        if MgtKeyList is None:
             raise PopbillException(-99999999, "문서번호 배열이 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
         postData = self._stringtify(MgtKeyList)
 
-        result = self._httppost('/Statement/' + str(ItemCode) + '?Print', postData, CorpNum, UserID)
+        result = self._httppost(
+            f'/Statement/{str(ItemCode)}?Print', postData, CorpNum, UserID
+        )
+
 
         return result.url
 
@@ -725,12 +785,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        uri = '/Statement/' + ItemCode + '/' + MgtKey + '/AttachStmt'
+        uri = f'/Statement/{ItemCode}/{MgtKey}/AttachStmt'
 
         postData = self._stringtify({"ItemCode": ItemCode, "MgtKey": SubMgtKey})
 
@@ -750,12 +810,12 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if MgtKey == None or MgtKey == "":
+        if MgtKey is None or MgtKey == "":
             raise PopbillException(-99999999, "문서번호가 입력되지 않았습니다.")
-        if ItemCode == None or ItemCode == "":
+        if ItemCode is None or ItemCode == "":
             raise PopbillException(-99999999, "명세서 종류 코드가 입력되지 않았습니다.")
 
-        uri = '/Statement/' + ItemCode + '/' + MgtKey + '/DetachStmt'
+        uri = f'/Statement/{ItemCode}/{MgtKey}/DetachStmt'
 
         req = {}
 
@@ -787,13 +847,13 @@ class StatementService(PopbillBase):
             raise
                 PopbillException
         """
-        if EmailType == None or EmailType == '':
+        if EmailType is None or EmailType == '':
             raise PopbillException(-99999999, "메일전송 타입이 입력되지 않았습니다.")
 
-        if SendYN == None or SendYN == '':
+        if SendYN is None or SendYN == '':
             raise PopbillException(-99999999, "메일전송 여부 항목이 입력되지 않았습니다.")
 
-        uri = "/Statement/EmailSendConfig?EmailType=" + EmailType + "&SendYN=" + str(SendYN)
+        uri = f"/Statement/EmailSendConfig?EmailType={EmailType}&SendYN={str(SendYN)}"
         return self._httppost(uri, "", Corpnum, UserID)
 
 

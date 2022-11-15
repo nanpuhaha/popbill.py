@@ -19,11 +19,14 @@ from popbill import *
 
 class HTTaxinvoiceServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.htTaxinvoiceService = HTTaxinvoiceService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.htTaxinvoiceService.IsTest = True
-        self.testCorpNum = "6798700433"
-        self.testUserID = ""
+    def setUpClass(cls):
+        cls.htTaxinvoiceService = HTTaxinvoiceService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.htTaxinvoiceService.IsTest = True
+        cls.testCorpNum = "6798700433"
+        cls.testUserID = ""
 
     def test_getPartnerURL(self):
         url = self.htTaxinvoiceService.getPartnerURL(self.testCorpNum, "CHRG")
@@ -84,7 +87,7 @@ class HTTaxinvoiceServiceTestCase(unittest.TestCase):
     def test_getChrgInfo(self):
         chrgInfo = self.htTaxinvoiceService.getChargeInfo(self.testCorpNum, self.testUserID)
         self.assertIsNotNone(chrgInfo)
-        print("단가 : " + chrgInfo.unitCost)
+        print(f"단가 : {chrgInfo.unitCost}")
 
     def test_requestJob(self):
         Type = "SELL"
@@ -92,7 +95,7 @@ class HTTaxinvoiceServiceTestCase(unittest.TestCase):
         SDate = "20190901"
         EDate = "20191231"
         jobID = self.htTaxinvoiceService.requestJob(self.testCorpNum, Type, DType, SDate, EDate, self.testUserID)
-        print("작업아이디 : " + jobID)
+        print(f"작업아이디 : {jobID}")
         self.assertIsNotNone(jobID, "수집요청 작업아이디 확인")
 
     def test_getJobState(self):

@@ -52,19 +52,19 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if Type == None or Type == '':
+        if Type is None or Type == '':
             raise PopbillException(-99999999, "전자세금계산서 유형이 입력되지 않았습니다.")
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
-        uri = '/HomeTax/Taxinvoice/' + Type
-        uri += '?DType=' + DType
-        uri += '&SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri = f'/HomeTax/Taxinvoice/{Type}'
+        uri += f'?DType={DType}'
+        uri += f'&SDate={SDate}'
+        uri += f'&EDate={EDate}'
 
         return self._httppost(uri, "", CorpNum, UserID).jobID
 
@@ -79,10 +79,10 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Taxinvoice/' + JobID + '/State', CorpNum, UserID)
+        return self._httpget(f'/HomeTax/Taxinvoice/{JobID}/State', CorpNum, UserID)
 
     def listActiveJob(self, CorpNum, UserID=None):
         """ 수집 상태 목록 확인
@@ -118,24 +118,24 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/HomeTax/Taxinvoice/' + JobID
+        uri = f'/HomeTax/Taxinvoice/{JobID}'
         uri += '?Type=' + ','.join(Type)
         uri += '&TaxType=' + ','.join(TaxType)
         uri += '&PurposeType=' + ','.join(PurposeType)
-        uri += '&TaxRegIDType=' + TaxRegIDType
-        uri += '&TaxRegID=' + TaxRegID
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&TaxRegIDType={TaxRegIDType}'
+        uri += f'&TaxRegID={TaxRegID}'
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         if TaxRegIDYN != '':
-            uri += '&TaxRegIDYN=' + TaxRegIDYN
+            uri += f'&TaxRegIDYN={TaxRegIDYN}'
 
         if SearchString is not None:
-            uri += '&SearchString=' + SearchString
+            uri += f'&SearchString={SearchString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -156,21 +156,21 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/HomeTax/Taxinvoice/' + JobID + '/Summary'
+        uri = f'/HomeTax/Taxinvoice/{JobID}/Summary'
         uri += '?Type=' + ','.join(Type)
         uri += '&TaxType=' + ','.join(TaxType)
         uri += '&PurposeType=' + ','.join(PurposeType)
-        uri += '&TaxRegIDType=' + TaxRegIDType
-        uri += '&TaxRegID=' + TaxRegID
+        uri += f'&TaxRegIDType={TaxRegIDType}'
+        uri += f'&TaxRegID={TaxRegID}'
 
         if TaxRegIDYN != '':
-            uri += '&TaxRegIDYN=' + TaxRegIDYN
+            uri += f'&TaxRegIDYN={TaxRegIDYN}'
 
         if SearchString is not None:
-            uri += '&SearchString=' + SearchString
+            uri += f'&SearchString={SearchString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -185,10 +185,10 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if NTSConfirmNum == None or len(NTSConfirmNum) != 24:
+        if NTSConfirmNum is None or len(NTSConfirmNum) != 24:
             raise PopbillException(-99999999, "국세청승인번호(NTSConfirmNum)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Taxinvoice/' + NTSConfirmNum, CorpNum, UserID)
+        return self._httpget(f'/HomeTax/Taxinvoice/{NTSConfirmNum}', CorpNum, UserID)
 
     def getXML(self, CorpNum, NTSConfirmNum, UserID=None):
         """ 전자세금계산서 상세정보 확인 - XML
@@ -201,10 +201,12 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if NTSConfirmNum == None or len(NTSConfirmNum) != 24:
+        if NTSConfirmNum is None or len(NTSConfirmNum) != 24:
             raise PopbillException(-99999999, "국세청승인번호(NTSConfirmNum)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Taxinvoice/' + NTSConfirmNum + '?T=xml', CorpNum, UserID)
+        return self._httpget(
+            f'/HomeTax/Taxinvoice/{NTSConfirmNum}?T=xml', CorpNum, UserID
+        )
 
     def getFlatRatePopUpURL(self, CorpNum, UserID=None):
         """ 정액제 서비스 신청 URL
@@ -267,10 +269,12 @@ class HTTaxinvoiceService(PopbillBase):
                 PopbillException
         """
 
-        if NTSConfirmNum == None or len(NTSConfirmNum) != 24:
+        if NTSConfirmNum is None or len(NTSConfirmNum) != 24:
             raise PopbillException(-99999999, "국세청승인번호(NTSConfirmNum)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Taxinvoice/' + NTSConfirmNum + '/PopUp', CorpNum, UserID).url
+        return self._httpget(
+            f'/HomeTax/Taxinvoice/{NTSConfirmNum}/PopUp', CorpNum, UserID
+        ).url
 
     def getPrintURL(self, CorpNum, NTSConfirmNum, UserID=None):
         """ 홈택스 전자세금계산서 인쇄 팝업 URL
@@ -284,10 +288,12 @@ class HTTaxinvoiceService(PopbillBase):
                 PopbillException
         """
 
-        if NTSConfirmNum == None or len(NTSConfirmNum) != 24:
+        if NTSConfirmNum is None or len(NTSConfirmNum) != 24:
             raise PopbillException(-99999999, "국세청승인번호(NTSConfirmNum)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Taxinvoice/' + NTSConfirmNum + '/Print', CorpNum, UserID).url
+        return self._httpget(
+            f'/HomeTax/Taxinvoice/{NTSConfirmNum}/Print', CorpNum, UserID
+        ).url
 
     def checkCertValidation(self, CorpNum, UserID=None):
         """ 홈택스 공인인증서 로그인 테스트
@@ -314,16 +320,13 @@ class HTTaxinvoiceService(PopbillBase):
             raise
                 PopbillException
         """
-        if DeptUserID == None or len(DeptUserID) == 0:
+        if DeptUserID is None or len(DeptUserID) == 0:
             raise PopbillException(-99999999, "홈택스 부서사용자 계정 아이디가 입력되지 않았습니다.")
 
-        if DeptUserPWD == None or len(DeptUserPWD) == 0:
+        if DeptUserPWD is None or len(DeptUserPWD) == 0:
             raise PopbillException(-99999999, "홈택스 부서사용자 계정 비밀번호가 입력되지 않았습니다.")
 
-        req = {}
-        req["id"] = DeptUserID
-        req["pwd"] = DeptUserPWD
-
+        req = {"id": DeptUserID, "pwd": DeptUserPWD}
         postData = self._stringtify(req)
 
         return self._httppost("/HomeTax/Taxinvoice/DeptUser", postData, CorpNum, UserID)

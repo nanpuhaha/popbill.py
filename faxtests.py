@@ -19,11 +19,14 @@ from popbill import *
 
 class FaxServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.faxService = FaxService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.faxService.IsTest = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
+    def setUpClass(cls):
+        cls.faxService = FaxService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.faxService.IsTest = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
 
     def test_getChargeInfo(self):
         chrgInfo = self.faxService.getChargeInfo(self.testCorpNum, self.testUserID)
@@ -45,12 +48,10 @@ class FaxServiceTestCase(unittest.TestCase):
         response = self.faxService.search(self.testCorpNum, SDate, EDate, State, ReserveYN, SenderOnly, Page, PerPage,
                                           Order, self.testUserID, QString)
 
-        i = 1
-        for info in response.list:
+        for i, info in enumerate(response.list, start=1):
             print("====== 팩스 전송정보 [%d] ======" % i)
             for key, value in info.__dict__.items():
-                print("    %s : %s" % (key, value))
-            i += 1
+                print(f"    {key} : {value}")
             print("")
 
     def test_01_getURL(self):
@@ -63,12 +64,12 @@ class FaxServiceTestCase(unittest.TestCase):
         self.assertGreaterEqual(unitCost, 0, "단가는 0 이상.")
 
     def test_03_sendFaxMulti(self):
-        receivers = []
-
         filepath = ["test.jpeg", "test2.jpeg"]
 
-        for x in range(0, 5):
-            receivers.append(FaxReceiver(receiveNum="070-111-222", receiveName="수신자명칭"))
+        receivers = [
+            FaxReceiver(receiveNum="070-111-222", receiveName="수신자명칭")
+            for _ in range(5)
+        ]
 
         receiptNum = self.faxService.sendFax_multi(
             self.testCorpNum,
@@ -225,9 +226,10 @@ class FaxServiceTestCase(unittest.TestCase):
             title = ""
             RequestNum = "py_20180809_7"
 
-            receivers = []
-            for x in range(0, 5):
-                receivers.append(FaxReceiver(receiveNum="010999888", receiveName="수신자명칭"))
+            receivers = [
+                FaxReceiver(receiveNum="010999888", receiveName="수신자명칭")
+                for _ in range(5)
+            ]
 
             response = self.faxService.resendFaxRN_multi(self.testCorpNum, OrgRequestNum, SenderNum, SenderName,
                                                          receivers, ReserveDT, UserID, title, RequestNum)

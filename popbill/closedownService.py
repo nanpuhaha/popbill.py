@@ -62,13 +62,13 @@ class ClosedownService(PopbillBase):
                 PopbillException
         """
 
-        if MemberCorpNum == None or MemberCorpNum == "" :
+        if MemberCorpNum is None or MemberCorpNum == "":
             raise PopbillException(-99999999,"팝빌회원 사업자번호가 입력되지 않았습니다.")
 
-        if CheckCorpNum == None or CheckCorpNum == "" :
+        if CheckCorpNum is None or CheckCorpNum == "":
             raise PopbillException(-99999999,"조회할 사업자번호가 입력되지 않았습니다.")
 
-        return self._httpget('/CloseDown?CN=' +CheckCorpNum, MemberCorpNum)
+        return self._httpget(f'/CloseDown?CN={CheckCorpNum}', MemberCorpNum)
 
     def checkCorpNums(self, MemberCorpNum, CorpNumList):
         """ 휴폐업조회 대량 확인, 최대 1000건
@@ -80,7 +80,7 @@ class ClosedownService(PopbillBase):
             raise
                 PopbillException
         """
-        if CorpNumList == None or len(CorpNumList) < 1:
+        if CorpNumList is None or len(CorpNumList) < 1:
             raise PopbillException(-99999999,"조죄할 사업자번호 목록이 입력되지 않았습니다.")
 
         postData = self._stringtify(CorpNumList)

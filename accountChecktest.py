@@ -16,11 +16,14 @@ from popbill import *
 class AccountCheckServiceTestCase(unittest.TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.accountCheckService =  AccountCheckService('TESTER','SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.accountCheckService.IsTest = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
+    def setUpClass(cls):
+        cls.accountCheckService = AccountCheckService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.accountCheckService.IsTest = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
 
     def test_getChrgInfo(self):
         try:

@@ -52,18 +52,18 @@ class HTCashbillService(PopbillBase):
                 PopbillException
         """
 
-        if Type == None or Type == '':
+        if Type is None or Type == '':
             raise PopbillException(-99999999, "문서형태이 입력되지 않았습니다.")
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
-        uri = '/HomeTax/Cashbill/' + Type
-        uri += '?SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri = f'/HomeTax/Cashbill/{Type}'
+        uri += f'?SDate={SDate}'
+        uri += f'&EDate={EDate}'
 
         return self._httppost(uri, "", CorpNum, UserID).jobID
 
@@ -78,10 +78,10 @@ class HTCashbillService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        return self._httpget('/HomeTax/Cashbill/' + JobID + '/State', CorpNum, UserID)
+        return self._httpget(f'/HomeTax/Cashbill/{JobID}/State', CorpNum, UserID)
 
     def listActiveJob(self, CorpNum, UserID=None):
         """ 수집 상태 목록 확인
@@ -112,15 +112,15 @@ class HTCashbillService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/HomeTax/Cashbill/' + JobID
+        uri = f'/HomeTax/Cashbill/{JobID}'
         uri += '?TradeType=' + ','.join(TradeType)
         uri += '&TradeUsage=' + ','.join(TradeUsage)
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -137,10 +137,10 @@ class HTCashbillService(PopbillBase):
             raise
                 PopbillException
         """
-        if JobID == None or len(JobID) != 18:
+        if JobID is None or len(JobID) != 18:
             raise PopbillException(-99999999, "작업아이디(jobID)가 올바르지 않습니다.")
 
-        uri = '/HomeTax/Cashbill/' + JobID + '/Summary'
+        uri = f'/HomeTax/Cashbill/{JobID}/Summary'
         uri += '?TradeType=' + ','.join(TradeType)
         uri += '&TradeUsage=' + ','.join(TradeUsage)
 
@@ -220,16 +220,13 @@ class HTCashbillService(PopbillBase):
             raise
                 PopbillException
         """
-        if DeptUserID == None or len(DeptUserID) == 0:
+        if DeptUserID is None or len(DeptUserID) == 0:
             raise PopbillException(-99999999, "홈택스 부서사용자 계정 아이디가 입력되지 않았습니다.")
 
-        if DeptUserPWD == None or len(DeptUserPWD) == 0:
+        if DeptUserPWD is None or len(DeptUserPWD) == 0:
             raise PopbillException(-99999999, "홈택스 부서사용자 계정 비밀번호가 입력되지 않았습니다.")
 
-        req = {}
-        req["id"] = DeptUserID
-        req["pwd"] = DeptUserPWD
-
+        req = {"id": DeptUserID, "pwd": DeptUserPWD}
         postData = self._stringtify(req)
 
         return self._httppost("/HomeTax/Cashbill/DeptUser", postData, CorpNum, UserID)

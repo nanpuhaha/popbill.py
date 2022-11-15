@@ -20,14 +20,19 @@ from popbill import *
 
 class TaxinvoiceServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.taxinvoiceService = TaxinvoiceService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.taxinvoiceService.IsTest = True
-        self.taxinvoiceService.IPRestrictOnOff = True
-        self.taxinvoiceService.UseStaticIP = True
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
-        self.testMgtKey = ''.join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890', 10))
+    def setUpClass(cls):
+        cls.taxinvoiceService = TaxinvoiceService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.taxinvoiceService.IsTest = True
+        cls.taxinvoiceService.IPRestrictOnOff = True
+        cls.taxinvoiceService.UseStaticIP = True
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
+        cls.testMgtKey = ''.join(
+            random.sample('abcdefghijklmnopqrstuvwxyz1234567890', 10)
+        )
 
     def test_attachStmt(self):
         try:
@@ -128,8 +133,8 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
         result = self.taxinvoiceService.registIssue(self.testCorpNum, taxinvoice, writeSpecification, forceIssue,
                                                     dealInvoiceMgtKey, memo, emailSubject, self.testUserID)
-        print(result.message+" "+result.ntsConfirmNum)
-        self.assertEqual(result.code, 1, "등록 오류 : " + result.message)
+        print(f"{result.message} {result.ntsConfirmNum}")
+        self.assertEqual(result.code, 1, f"등록 오류 : {result.message}")
 
     def test_search(self):
         MgtKeyType = "SELL"
@@ -238,10 +243,10 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
     def test_checkIsMember(self):
         result = self.taxinvoiceService.checkIsMember(self.testCorpNum)
-        self.assertEqual(result.code, 1, result.message + ", 가입시 코드는 1")
+        self.assertEqual(result.code, 1, f"{result.message}, 가입시 코드는 1")
 
         result = self.taxinvoiceService.checkIsMember("1234568790")
-        self.assertEqual(result.code, 0, result.message + ", 미가입시 코드는 0")
+        self.assertEqual(result.code, 0, f"{result.message}, 미가입시 코드는 0")
 
     def test_joinMember(self):
         newMember = JoinForm(CorpNum="1231212312",
@@ -270,7 +275,7 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
     def test_getCertificateExpireDate(self):
         expireDate = self.taxinvoiceService.getCertificateExpireDate("4108600477")
-        self.assertGreaterEqual(expireDate, datetime.today(), "만료일은 오늘보다 큰날.")
+        self.assertGreaterEqual(expireDate, datetime.now(), "만료일은 오늘보다 큰날.")
 
     def test_getEmailPublicKeys(self):
         Emails = self.taxinvoiceService.getEmailPublicKeys(self.testCorpNum)
@@ -362,7 +367,7 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
         result = self.taxinvoiceService.register(self.testCorpNum, taxinvoice)
         print(result.message)
-        self.assertEqual(result.code, 1, "등록 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"등록 오류 : {result.message}")
 
     def test_update(self):
         taxinvoice = Taxinvoice(writeDate="20150121",  # 작성일자
@@ -442,11 +447,11 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
                                 )
 
         result = self.taxinvoiceService.update(self.testCorpNum, "SELL", self.testMgtKey, taxinvoice)
-        self.assertEqual(result.code, 1, "수정 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"수정 오류 : {result.message}")
 
     def test_attachFile(self):
         result = self.taxinvoiceService.attachFile(self.testCorpNum, "SELL", self.testMgtKey, "test.jpeg")
-        self.assertEqual(result.code, 1, "첩부 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"첩부 오류 : {result.message}")
 
     def test_getInfo(self):
         info = self.taxinvoiceService.getInfo(self.testCorpNum, "SELL", "1234")
@@ -459,7 +464,7 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
     def test_z_delete(self):
         result = self.taxinvoiceService.delete(self.testCorpNum, "SELL", self.testMgtKey)
-        self.assertEqual(result.code, 1, "삭제 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"삭제 오류 : {result.message}")
 
     def test_getLogs(self):
         logs = self.taxinvoiceService.getLogs(self.testCorpNum, "SELL", "1234")
@@ -586,7 +591,7 @@ class TaxinvoiceServiceTestCase(unittest.TestCase):
 
         result = self.taxinvoiceService.registRequest(self.testCorpNum, taxinvoice)
         print(result.message)
-        self.assertEqual(result.code, 1, "등록 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"등록 오류 : {result.message}")
 
     def test_getViewURL(self):
         MgtKeyType = "SELL"

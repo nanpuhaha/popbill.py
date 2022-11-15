@@ -19,13 +19,19 @@ from popbill import *
 
 class StatementServiceTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.statementService = StatementService('TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I=')
-        self.testCorpNum = "1234567890"
-        self.testUserID = "testkorea"
-        self.testMgtKey = ''.join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890', 10))
-        self.statementService.IsTest = True
-        self.statementService.IPRestrictOnOff = True
+    def setUpClass(cls):
+        cls.statementService = StatementService(
+            'TESTER', 'SwWxqU+0TErBXy/9TVjIPEnI0VTUMMSQZtJf3Ed8q3I='
+        )
+
+        cls.testCorpNum = "1234567890"
+        cls.testUserID = "testkorea"
+        cls.testMgtKey = ''.join(
+            random.sample('abcdefghijklmnopqrstuvwxyz1234567890', 10)
+        )
+
+        cls.statementService.IsTest = True
+        cls.statementService.IPRestrictOnOff = True
     
     def test_getChargeInfo(self):
         ItemCode = "126"
@@ -202,10 +208,10 @@ class StatementServiceTestCase(unittest.TestCase):
     def test_getInfos(self):
         infos = self.statementService.getInfos(self.testCorpNum, 121, ["20150707-01", "20150706-01"])
         for info in infos:
-            print("info : %s" % info.mgtKey)
+            print(f"info : {info.mgtKey}")
             for key, value in info.__dict__.items():
                 if not key.startswith("__"):
-                    print("     %s : %s" % (key, value))
+                    print(f"     {key} : {value}")
         self.assertGreater(len(infos), 0, "갯수 확인")
 
     def test_getBalance(self):
@@ -224,14 +230,14 @@ class StatementServiceTestCase(unittest.TestCase):
 
     def test_checkIsMember(self):
         result = self.statementService.checkIsMember(self.testCorpNum)
-        self.assertEqual(result.code, 1, result.message + ", 가입시 코드는 1")
+        self.assertEqual(result.code, 1, f"{result.message}, 가입시 코드는 1")
 
         result = self.statementService.checkIsMember("1234568790")
-        self.assertEqual(result.code, 0, result.message + ", 미가입시 코드는 0")
+        self.assertEqual(result.code, 0, f"{result.message}, 미가입시 코드는 0")
 
     def test_getURL(self):
         url = self.statementService.getURL(self.testCorpNum, self.testUserID, "TBOX")
-        print("TBOX URL = " + url)
+        print(f"TBOX URL = {url}")
         self.assertEqual(url[:5], "https", "https로 시작")
 
     def test_getUnitCost(self):
@@ -308,7 +314,7 @@ class StatementServiceTestCase(unittest.TestCase):
                               )
 
         result = self.statementService.register(self.testCorpNum, statement)
-        self.assertEqual(result.code, 1, "등록 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"등록 오류 : {result.message}")
 
     def test_02_update(self):
 
@@ -373,40 +379,42 @@ class StatementServiceTestCase(unittest.TestCase):
                               )
 
         result = self.statementService.update(self.testCorpNum, 121, "20150325-01", statement)
-        self.assertEqual(result.code, 1, "등록 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"등록 오류 : {result.message}")
 
     def test_03_issue(self):
         result = self.statementService.issue(self.testCorpNum, 121, "20150325-01", "발행메모")
-        self.assertEqual(result.code, 1, "발행 오류: " + result.message)
+        self.assertEqual(result.code, 1, f"발행 오류: {result.message}")
 
     def test_04_cancel(self):
         result = self.statementService.cancel(self.testCorpNum, 121, "20150325-01", "취소메모")
-        self.assertEqual(result.code, 1, "발행취소 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"발행취소 오류 : {result.message}")
 
     def test_05_getInfo(self):
         result = self.statementService.getInfo(self.testCorpNum, 121, "20150325-01")
         print(result.itemCode)
-        self.assertEqual(result.itemCode, 121, "getInfo오류 :" + str(result.message))
+        self.assertEqual(result.itemCode, 121, f"getInfo오류 :{str(result.message)}")
 
     def test_06_getDetailInfo(self):
         result = self.statementService.getDetailInfo(self.testCorpNum, 121, "20150325-01")
         print(result.propertyBag.Balance)
-        self.assertEqual(result.mgtKey, "20150325-01", "getDetail오류 :" + str(result.message))
+        self.assertEqual(
+            result.mgtKey, "20150325-01", f"getDetail오류 :{str(result.message)}"
+        )
 
     def test_07_sendEmail(self):
 
         result = self.statementService.sendEmail(self.testCorpNum, 121, "20150325-01", "test@test.com")
-        self.assertEqual(result.code, 1, "이메일 재전송 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"이메일 재전송 오류 : {result.message}")
 
     def test_08_sendSMS(self):
 
         result = self.statementService.sendSMS(self.testCorpNum, 121, "20150325-01", "07075103710", "010111222",
                                                "문자메시지 테스트")
-        self.assertEqual(result.code, 1, "알림문자 전송 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"알림문자 전송 오류 : {result.message}")
 
     def test_09_sendFax(self):
         result = self.statementService.sendFAX(self.testCorpNum, 121, "20150325-01", "07075103710", "010111222")
-        self.assertEqual(result.code, 1, "알림문자 전송 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"알림문자 전송 오류 : {result.message}")
 
     def test_10_getLogs(self):
         result = self.statementService.getLogs(self.testCorpNum, 121, "20150325-01")
@@ -414,49 +422,49 @@ class StatementServiceTestCase(unittest.TestCase):
 
     def test_021_attachFile(self):
         result = self.statementService.attachFile(self.testCorpNum, 121, "20150325-01", "test.jpeg")
-        self.assertEqual(result.code, 1, "파일 첨부 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"파일 첨부 오류 : {result.message}")
 
     def test_022_getFilesAndDelete(self):
         result = self.statementService.getFiles(self.testCorpNum, 121, "20150325-01")
         print(result[0].attachedFile)
 
         result2 = self.statementService.deleteFile(self.testCorpNum, 121, "20150325-01", result[0].attachedFile)
-        self.assertEqual(result2.code, 1, "첨부파일 삭제오류 : " + result2.message)
+        self.assertEqual(result2.code, 1, f"첨부파일 삭제오류 : {result2.message}")
 
     def test_023_getPopUpURL(self):
         url = self.statementService.getPopUpURL(self.testCorpNum, 121, "20150325-01", self.testUserID)
-        print("popup url : " + url)
+        print(f"popup url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_023_getViewURL(self):
         url = self.statementService.getViewURL(self.testCorpNum, 121, "20150325-01", self.testUserID)
-        print("view url : " + url)
+        print(f"view url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_024_getPrintURL(self):
         url = self.statementService.getPrintURL(self.testCorpNum, 121, "20150325-01", self.testUserID)
-        print("print url : " + url)
+        print(f"print url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_025_getEPrintURL(self):
         url = self.statementService.getEPrintURL(self.testCorpNum, 121, "20150325-01", self.testUserID)
-        print("Eprint url : " + url)
+        print(f"Eprint url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_026_getMailURL(self):
         url = self.statementService.getMailURL(self.testCorpNum, 121, "20150325-01", self.testUserID)
-        print("Mail url : " + url)
+        print(f"Mail url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_027_getMassPrintURL(self):
         MgtKeyList = ["20150323-01", "20150319-01"]
         url = self.statementService.getMassPrintURL(self.testCorpNum, 121, MgtKeyList, self.testUserID)
-        print("Massprint url : " + url)
+        print(f"Massprint url : {url}")
         self.assertEqual(url[:5], "https", "https로 시작 ")
 
     def test_99_delete(self):
         result = self.statementService.delete(self.testCorpNum, 121, "20150325-01")
-        self.assertEqual(result.code, 1, "삭제 오류 : " + result.message)
+        self.assertEqual(result.code, 1, f"삭제 오류 : {result.message}")
 
     def test_listEmailConfig(self):
         result = self.statementService.listEmailConfig(self.testCorpNum)

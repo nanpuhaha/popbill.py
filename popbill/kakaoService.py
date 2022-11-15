@@ -32,13 +32,13 @@ class KakaoService(PopbillBase):
         :param ToGo: [PLUSFRIEND-플러스친구계정관리, SENDER-발신번호관리, TEMPLATE-알림톡템플릿관리, BOX-카카오톡전송내용]
         :return: 팝빌 URL
         """
-        if ToGo == None or ToGo == '':
+        if ToGo is None or ToGo == '':
             raise PopbillException(-99999999, "TOGO값이 입력되지 않았습니다.")
 
         if ToGo == 'SENDER':
-            result = self._httpget('/Message/?TG=' + ToGo, CorpNum, UserID)
+            result = self._httpget(f'/Message/?TG={ToGo}', CorpNum, UserID)
         else:
-            result = self._httpget('/KakaoTalk/?TG=' + ToGo, CorpNum, UserID)
+            result = self._httpget(f'/KakaoTalk/?TG={ToGo}', CorpNum, UserID)
         return result.url
 
     def getPlusFriendMgtURL(self, CorpNum, UserID):
@@ -107,11 +107,12 @@ class KakaoService(PopbillBase):
         :param UserID: 팝빌회원 아이디
         :return: templateCode (템플릿 코드), templateName (템플릿 이름), template (템플릿 내용), plusFriendID (채널 이름)
         """
-        if templateCode == None or templateCode == '':
+        if templateCode is None or templateCode == '':
             raise PopbillException(-99999999, "템플릿 코드가 입력되지 않았습니다.")
 
-        result = self._httpget('/KakaoTalk/GetATSTemplate/' + templateCode, CorpNum, UserID)
-        return result
+        return self._httpget(
+            f'/KakaoTalk/GetATSTemplate/{templateCode}', CorpNum, UserID
+        )
 
     def listATSTemplate(self, CorpNum, UserID=None):
         """
@@ -125,26 +126,24 @@ class KakaoService(PopbillBase):
     def sendATS(self, CorpNum, TemplateCode, Sender, Content, AltContent, AltSendType, SndDT, Receiver,
                 ReceiverName, UserID=None, RequestNum=None):
 
-        KakaoMessages = []
-        KakaoMessages.append(KakaoReceiver(
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Content,
-            altmsg=AltContent)
-        )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv=Receiver, rcvnm=ReceiverName, msg=Content, altmsg=AltContent
+            )
+        ]
+
         return self.sendATS_same(CorpNum, TemplateCode, Sender, "", "", AltSendType, SndDT, KakaoMessages, UserID,
                                  RequestNum)
 
     def sendATS(self, CorpNum, TemplateCode, Sender, Content, AltContent, AltSendType, SndDT, Receiver,
                 ReceiverName, UserID=None, RequestNum=None, ButtonList=None):
 
-        KakaoMessages = []
-        KakaoMessages.append(KakaoReceiver(
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Content,
-            altmsg=AltContent)
-        )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv=Receiver, rcvnm=ReceiverName, msg=Content, altmsg=AltContent
+            )
+        ]
+
         return self.sendATS_same(CorpNum, TemplateCode, Sender, "", "", AltSendType, SndDT, KakaoMessages, UserID,
                                  RequestNum, ButtonList)
 
@@ -189,8 +188,7 @@ class KakaoService(PopbillBase):
 
         if TemplateCode is not None or TemplateCode != '':
             req['templateCode'] = TemplateCode
-        if Sender is not None or Sender != '':
-            req['snd'] = Sender
+        req['snd'] = Sender
         if Content is not None or Content != '':
             req['content'] = Content
         if AltContent is not None or AltContent != '':
@@ -214,13 +212,11 @@ class KakaoService(PopbillBase):
 
     def sendFTS(self, CorpNum, PlusFriendID, Sender, Content, AltContent, AltSendType, SndDT, Receiver,
                 ReceiverName, KakaoButtons, AdsYN=False, UserID=None, RequestNum=None):
-        KakaoMessages = []
-        KakaoMessages.append(KakaoReceiver(
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Content,
-            altmsg=AltContent)
-        )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv=Receiver, rcvnm=ReceiverName, msg=Content, altmsg=AltContent
+            )
+        ]
 
         return self.sendFTS_same(CorpNum, PlusFriendID, Sender, "", "", AltSendType, SndDT, KakaoMessages, KakaoButtons,
                                  AdsYN, UserID, RequestNum)
@@ -256,8 +252,7 @@ class KakaoService(PopbillBase):
         req = {}
         if PlusFriendID is not None or PlusFriendID != '':
             req['plusFriendID'] = PlusFriendID
-        if Sender is not None or Sender != '':
-            req['snd'] = Sender
+        req['snd'] = Sender
         if AltSendType is not None or AltSendType != '':
             req['altSendType'] = AltSendType
         if Content is not None or Content != '':
@@ -284,13 +279,11 @@ class KakaoService(PopbillBase):
     def sendFMS(self, CorpNum, PlusFriendID, Sender, Content, AltContent, AltSendType, SndDT, FilePath, ImageURL,
                 Receiver, ReceiverName, KakaoButtons, AdsYN=False, UserID=None, RequestNum=None):
 
-        KakaoMessages = []
-        KakaoMessages.append(KakaoReceiver(
-            rcv=Receiver,
-            rcvnm=ReceiverName,
-            msg=Content,
-            altmsg=AltContent)
-        )
+        KakaoMessages = [
+            KakaoReceiver(
+                rcv=Receiver, rcvnm=ReceiverName, msg=Content, altmsg=AltContent
+            )
+        ]
 
         return self.sendFMS_same(CorpNum, PlusFriendID, Sender, "", "", AltSendType, SndDT, FilePath, ImageURL,
                                  KakaoMessages, KakaoButtons, AdsYN, UserID, RequestNum)
@@ -328,8 +321,7 @@ class KakaoService(PopbillBase):
         req = {}
         if PlusFriendID is not None or PlusFriendID != '':
             req['plusFriendID'] = PlusFriendID
-        if Sender is not None or Sender != '':
-            req['snd'] = Sender
+        req['snd'] = Sender
         if Content is not None or Content != '':
             req['content'] = Content
         if AltContent is not None or AltContent != '':
@@ -372,10 +364,10 @@ class KakaoService(PopbillBase):
         :param UserID: 팝빌회원 아이디
         :return: code (요청에 대한 상태 응답코드), message (요청에 대한 응답 메시지)
         """
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/KakaoTalk/' + ReceiptNum + '/Cancel', CorpNum, UserID)
+        return self._httpget(f'/KakaoTalk/{ReceiptNum}/Cancel', CorpNum, UserID)
 
     def cancelReserveRN(self, CorpNum, RequestNum, UserID=None):
         """
@@ -388,7 +380,7 @@ class KakaoService(PopbillBase):
         if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다")
 
-        return self._httpget('/KakaoTalk/Cancel/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/KakaoTalk/Cancel/{RequestNum}', CorpNum, UserID)
 
     def getMessages(self, CorpNum, ReceiptNum, UserID=None):
         """
@@ -398,10 +390,10 @@ class KakaoService(PopbillBase):
         :param UserID: 팝빌회원 아이디
         :return: 알림톡/친구톡 전송내역 및 전송상태
         """
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/KakaoTalk/' + ReceiptNum, CorpNum, UserID)
+        return self._httpget(f'/KakaoTalk/{ReceiptNum}', CorpNum, UserID)
 
     def getMessagesRN(self, CorpNum, RequestNum, UserID=None):
         """
@@ -414,7 +406,7 @@ class KakaoService(PopbillBase):
         if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다.")
 
-        return self._httpget('/KakaoTalk/Get/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/KakaoTalk/Get/{RequestNum}', CorpNum, UserID)
 
     def search(self, CorpNum, SDate, EDate, State, Item, ReserveYN, SenderYN, Page, PerPage, Order, UserID,
                QString=None):
@@ -437,25 +429,25 @@ class KakaoService(PopbillBase):
         :return: 알림톡/친구톡 전송내역 및 전송상태 및 검색결과 조회
         """
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
         uri = '/KakaoTalk/Search'
-        uri += '?SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri += f'?SDate={SDate}'
+        uri += f'&EDate={EDate}'
         uri += '&State=' + ','.join(State)
         uri += '&Item=' + ','.join(Item)
-        uri += '&ReserveYN=' + ReserveYN
-        uri += '&SenderYN=' + SenderYN
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&ReserveYN={ReserveYN}'
+        uri += f'&SenderYN={SenderYN}'
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         if QString is not None:
-            uri += '&QString=' + QString
+            uri += f'&QString={QString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -470,7 +462,7 @@ class KakaoService(PopbillBase):
         if MsgType is None or MsgType == "":
             raise PopbillException(-99999999, "전송유형이 입력되지 않았습니다.")
 
-        result = self._httpget("/KakaoTalk/UnitCost?Type=" + MsgType, CorpNum)
+        result = self._httpget(f"/KakaoTalk/UnitCost?Type={MsgType}", CorpNum)
         return float(result.unitCost)
 
     def getChargeInfo(self, CorpNum, MsgType, UserID=None):
@@ -481,7 +473,7 @@ class KakaoService(PopbillBase):
         :param UserID: 팝빌 회원아이디
         :return: unitCost, chargeMethod, rateSystem
         """
-        return self._httpget('/KakaoTalk/ChargeInfo?Type=' + MsgType, CorpNum, UserID)
+        return self._httpget(f'/KakaoTalk/ChargeInfo?Type={MsgType}', CorpNum, UserID)
 
 
 class KakaoReceiver(object):

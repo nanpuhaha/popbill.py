@@ -48,10 +48,10 @@ class FaxService(PopbillBase):
             raise
                 PopbillException
         """
-        if ToGo == None or ToGo == '':
+        if ToGo is None or ToGo == '':
             raise PopbillException(-99999999, "TOGO값이 입력되지 않았습니다.")
 
-        result = self._httpget('/FAX/?TG=' + ToGo, CorpNum, UserID)
+        result = self._httpget(f'/FAX/?TG={ToGo}', CorpNum, UserID)
         return result.url
 
     def getSentListURL(self, CorpNum, UserID):
@@ -110,15 +110,15 @@ class FaxService(PopbillBase):
                 QString : 조회 검색어, 발신자명 또는 수신자명 기재
         """
 
-        if SDate == None or SDate == '':
+        if SDate is None or SDate == '':
             raise PopbillException(-99999999, "시작일자가 입력되지 않았습니다.")
 
-        if EDate == None or EDate == '':
+        if EDate is None or EDate == '':
             raise PopbillException(-99999999, "종료일자가 입력되지 않았습니다.")
 
         uri = '/FAX/Search'
-        uri += '?SDate=' + SDate
-        uri += '&EDate=' + EDate
+        uri += f'?SDate={SDate}'
+        uri += f'&EDate={EDate}'
         uri += '&State=' + ','.join(State)
 
         if ReserveYN:
@@ -126,12 +126,12 @@ class FaxService(PopbillBase):
         if SenderOnly:
             uri += '&SenderOnly=1'
 
-        uri += '&Page=' + str(Page)
-        uri += '&PerPage=' + str(PerPage)
-        uri += '&Order=' + Order
+        uri += f'&Page={str(Page)}'
+        uri += f'&PerPage={str(PerPage)}'
+        uri += f'&Order={Order}'
 
         if QString is not None:
-            uri += '&QString=' + QString
+            uri += f'&QString={QString}'
 
         return self._httpget(uri, CorpNum, UserID)
 
@@ -147,10 +147,10 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/FAX/' + ReceiptNum, CorpNum, UserID)
+        return self._httpget(f'/FAX/{ReceiptNum}', CorpNum, UserID)
 
     def getFaxResultRN(self, CorpNum, RequestNum, UserID=None):
         """ 팩스 전송결과 조회
@@ -164,10 +164,10 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if RequestNum == None or RequestNum == '':
+        if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다.")
 
-        return self._httpget('/FAX/Get/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/FAX/Get/{RequestNum}', CorpNum, UserID)
 
     def cancelReserve(self, CorpNum, ReceiptNum, UserID=None):
         """ 팩스 예약전송 취소
@@ -181,10 +181,10 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
-        return self._httpget('/FAX/' + ReceiptNum + '/Cancel', CorpNum, UserID)
+        return self._httpget(f'/FAX/{ReceiptNum}/Cancel', CorpNum, UserID)
 
     def cancelReserveRN(self, CorpNum, RequestNum, UserID=None):
         """ 팩스 예약전송 취소
@@ -198,10 +198,10 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if RequestNum == None or RequestNum == '':
+        if RequestNum is None or RequestNum == '':
             raise PopbillException(-99999999, "요청번호가 입력되지 않았습니다.")
 
-        return self._httpget('/FAX/Cancel/' + RequestNum, CorpNum, UserID)
+        return self._httpget(f'/FAX/Cancel/{RequestNum}', CorpNum, UserID)
 
     def sendFax(self, CorpNum, SenderNum, ReceiverNum, ReceiverName, FilePath, ReserveDT=None, UserID=None,
                 SenderName=None, adsYN=False, title=None, RequestNum=None):
@@ -223,11 +223,7 @@ class FaxService(PopbillBase):
             raise
                 PopbillException
         """
-        receivers = []
-        receivers.append(FaxReceiver(receiveNum=ReceiverNum,
-                                     receiveName=ReceiverName)
-                         )
-
+        receivers = [FaxReceiver(receiveNum=ReceiverNum, receiveName=ReceiverName)]
         return self.sendFax_multi(CorpNum, SenderNum, receivers, FilePath, ReserveDT, UserID, SenderName, adsYN, title,
                                   RequestNum)
 
@@ -251,15 +247,19 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if SenderNum == None or SenderNum == "":
+        if SenderNum is None or SenderNum == "":
             raise PopbillException(-99999999, "발신자 번호가 입력되지 않았습니다.")
-        if Receiver == None:
+        if Receiver is None:
             raise PopbillException(-99999999, "수신자 정보가 입력되지 않았습니다.")
-        if not (type(Receiver) is str or type(Receiver) is FaxReceiver or type(Receiver) is list):
+        if (
+            type(Receiver) is not str
+            and type(Receiver) is not FaxReceiver
+            and type(Receiver) is not list
+        ):
             raise PopbillException(-99999999, "'Receiver' argument type error. 'FaxReceiver' or List of 'FaxReceiver'.")
-        if FilePath == None:
+        if FilePath is None:
             raise PopbillException(-99999999, "발신 파일경로가 입력되지 않았습니다.")
-        if not (type(FilePath) is str or type(FilePath) is list):
+        if type(FilePath) is not str and type(FilePath) is not list:
             raise PopbillException(-99999999, "발신 파일은 파일경로 또는 경로목록만 입력 가능합니다.")
         if type(FilePath) is list and (len(FilePath) < 1 or len(FilePath) > 20):
             raise PopbillException(-99999999, "파일은 1개 이상, 20개 까지 전송 가능합니다.")
@@ -326,11 +326,7 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        receivers = []
-        receivers.append(FaxReceiver(receiveNum=ReceiverNum,
-                                     receiveName=ReceiverName)
-                         )
-
+        receivers = [FaxReceiver(receiveNum=ReceiverNum, receiveName=ReceiverName)]
         return self.sendFaxBinary_multi(CorpNum, SenderNum, receivers, FileDatas, ReserveDT, UserID, SenderName, adsYN, title,
                                   RequestNum)
 
@@ -354,19 +350,23 @@ class FaxService(PopbillBase):
                 PopbillException
         """
 
-        if SenderNum == None or SenderNum == "":
+        if SenderNum is None or SenderNum == "":
             raise PopbillException(-99999999, "발신자 번호가 입력되지 않았습니다.")
 
-        if Receiver == None or Receiver == "":
+        if Receiver is None or Receiver == "":
             raise PopbillException(-99999999, "수신자 정보가 입력되지 않았습니다.")
 
-        if not (type(Receiver) is str or type(Receiver) is FaxReceiver or type(Receiver) is list):
+        if (
+            type(Receiver) is not str
+            and type(Receiver) is not FaxReceiver
+            and type(Receiver) is not list
+        ):
             raise PopbillException(-99999999, "'Receiver' argument type error. 'FaxReceiver' or List of 'FaxReceiver'.")
 
-        if FileDatas == None:
+        if FileDatas is None:
             raise PopbillException(-99999999, "전송 파일 정보가 입력되지 않았습니다.")
 
-        if not type(FileDatas) is list:
+        if type(FileDatas) is not list:
             raise PopbillException(-99999999, "'FileDatas' argument type error. List of FileData")
 
         if (len(FileDatas) < 1 or len(FileDatas) > 20):
@@ -397,12 +397,10 @@ class FaxService(PopbillBase):
 
         postData = self._stringtify(req)
 
-        files = []
-        for file in FileDatas:
-            files.append(File(fieldName='file',
-                              fileName=file.fileName,
-                              fileData=file.fileData)
-                        )
+        files = [
+            File(fieldName='file', fileName=file.fileName, fileData=file.fileData)
+            for file in FileDatas
+        ]
 
         result = self._httppost_files('/FAX', postData, files, CorpNum, UserID)
 
@@ -430,10 +428,7 @@ class FaxService(PopbillBase):
         receivers = None
 
         if ReceiverNum != "" or ReceiverName != "":
-            receivers = []
-            receivers.append(FaxReceiver(receiveNum=ReceiverNum,
-                                         receiveName=ReceiverName)
-                             )
+            receivers = [FaxReceiver(receiveNum=ReceiverNum, receiveName=ReceiverName)]
         return self.resendFax_multi(CorpNum, ReceiptNum, SenderNum, SenderName, receivers, ReserveDT, UserID, title,
                                     RequestNum)
 
@@ -458,7 +453,7 @@ class FaxService(PopbillBase):
 
         req = {}
 
-        if ReceiptNum == None or len(ReceiptNum) != 18:
+        if ReceiptNum is None or len(ReceiptNum) != 18:
             raise PopbillException(-99999999, "접수번호가 올바르지 않습니다.")
 
         if SenderNum != "":
@@ -487,7 +482,9 @@ class FaxService(PopbillBase):
 
         postData = self._stringtify(req)
 
-        return self._httppost('/FAX/' + ReceiptNum, postData, CorpNum, UserID).receiptNum
+        return self._httppost(
+            f'/FAX/{ReceiptNum}', postData, CorpNum, UserID
+        ).receiptNum
 
     def resendFaxRN(self, CorpNum, OrgRequestNum, SenderNum, SenderName, ReceiverNum, ReceiverName, ReserveDT=None,
                     UserID=None, title=None, RequestNum=None):
@@ -512,10 +509,7 @@ class FaxService(PopbillBase):
         receivers = None
 
         if ReceiverNum != "" or ReceiverName != "":
-            receivers = []
-            receivers.append(FaxReceiver(receiveNum=ReceiverNum,
-                                         receiveName=ReceiverName)
-                             )
+            receivers = [FaxReceiver(receiveNum=ReceiverNum, receiveName=ReceiverName)]
         return self.resendFaxRN_multi(CorpNum, OrgRequestNum, SenderNum, SenderName, receivers, ReserveDT,
                                       UserID, title, RequestNum)
 
@@ -569,7 +563,9 @@ class FaxService(PopbillBase):
 
         postData = self._stringtify(req)
 
-        return self._httppost('/FAX/Resend/' + OrgRequestNum, postData, CorpNum, UserID).receiptNum
+        return self._httppost(
+            f'/FAX/Resend/{OrgRequestNum}', postData, CorpNum, UserID
+        ).receiptNum
 
     def getSenderNumberList(self, CorpNum, UserID=None):
         """ 팩스 발신번호 목록 확인
@@ -593,7 +589,7 @@ class FaxService(PopbillBase):
             raise
                 PopbillException
         """
-        return self._httpget('/FAX/Preview/' + ReceiptNum, CorpNum, UserID).url
+        return self._httpget(f'/FAX/Preview/{ReceiptNum}', CorpNum, UserID).url
 
 class FaxReceiver(object):
     def __init__(self, **kwargs):
